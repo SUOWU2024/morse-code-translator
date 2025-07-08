@@ -1,8 +1,30 @@
+/* 已播放的摩斯码点和划 - 灰色 */
 .morse-dot.played, .morse-dash.played {
-  background-color: #a0aec0 !important;
-  opacity: 0.6;
+  background-color: #64748b !important;
+  opacity: 0.7;
+  box-shadow: 0 0 5px rgba(100, 116, 139, 0.5);
 }
+
+/* 正在播放的摩斯码点和划 - 亮蓝色 */
 .morse-dot.active, .morse-dash.active {
-  background-color: #38bdf8 !important;
+  background-color: #0ea5e9 !important;
   opacity: 1;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
+}
+
+/* 基础摩斯码点和划样式 */
+.morse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.morse-dash {
+  width: 24px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
