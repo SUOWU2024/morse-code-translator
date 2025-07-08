@@ -1,16 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { 
-  Menu, 
-  X, 
-  Radio,
-  Home,
-  BookOpen,
-  Settings
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    BookOpen,
+    ChevronDown,
+    Home,
+    Menu,
+    Radio,
+    Settings,
+    X
 } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,18 +37,42 @@ export function Navigation() {
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="terminal-text flex items-center space-x-2 hover:text-green-300 transition-colors">
               <Home className="h-4 w-4" />
-              <span>TRANSLATOR</span>
+              <span>HOME</span>
             </Link>
 
-            <Link href="/articles" className="terminal-text flex items-center space-x-2 hover:text-green-300 transition-colors">
-              <BookOpen className="h-4 w-4" />
-              <span>ARTICLES</span>
-            </Link>
+            {/* Tools Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="terminal-text flex items-center space-x-2 hover:text-green-300 transition-colors p-0 h-auto">
+                  <Settings className="h-4 w-4" />
+                  <span>TOOLS</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black/90 border-green-500/30 backdrop-blur-sm">
+                {/* 目前为空，将来添加工具选项 */}
+                <div className="p-3 text-center terminal-text text-sm opacity-60">
+                  Coming Soon...
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <Link href="/about" className="terminal-text flex items-center space-x-2 hover:text-green-300 transition-colors">
-              <Settings className="h-4 w-4" />
-              <span>ABOUT</span>
-            </Link>
+            {/* Articles Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="terminal-text flex items-center space-x-2 hover:text-green-300 transition-colors p-0 h-auto">
+                  <BookOpen className="h-4 w-4" />
+                  <span>ARTICLES</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black/90 border-green-500/30 backdrop-blur-sm">
+                {/* 目前为空，将来添加文章选项 */}
+                <div className="p-3 text-center terminal-text text-sm opacity-60">
+                  Coming Soon...
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile menu button */}
@@ -61,14 +91,14 @@ export function Navigation() {
           <div className="md:hidden py-4 border-t border-green-500/30">
             <div className="space-y-2">
               <Link href="/" className="block px-3 py-2 terminal-text hover:bg-green-900/20 rounded-md">
-                TRANSLATOR
+                HOME
               </Link>
-              <Link href="/articles" className="block px-3 py-2 terminal-text hover:bg-green-900/20 rounded-md">
-                ARTICLES
-              </Link>
-              <Link href="/about" className="block px-3 py-2 terminal-text hover:bg-green-900/20 rounded-md">
-                ABOUT
-              </Link>
+              <div className="px-3 py-2 terminal-text opacity-60">
+                TOOLS (Coming Soon...)
+              </div>
+              <div className="px-3 py-2 terminal-text opacity-60">
+                ARTICLES (Coming Soon...)
+              </div>
             </div>
           </div>
         )}
