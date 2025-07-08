@@ -1,0 +1,8 @@
+.morse-dot.played, .morse-dash.played {
+  background-color: #a0aec0 !important;
+  opacity: 0.6;
+}
+.morse-dot.active, .morse-dash.active {
+  background-color: #38bdf8 !important;
+  opacity: 1;
+}

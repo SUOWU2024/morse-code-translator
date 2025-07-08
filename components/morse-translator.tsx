@@ -1,42 +1,40 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Copy, 
-  Play, 
-  Square, 
-  Volume2, 
-  RotateCcw, 
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { audioManager } from '@/lib/audio-manager';
+import { getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
+import {
+  Activity,
   ArrowUpDown,
   BookOpen,
+  Copy,
+  Play,
   Radio,
-  Activity,
-  Zap,
-  Signal
+  RotateCcw,
+  Signal,
+  Square
 } from 'lucide-react';
-import { textToMorse, morseToText, isValidMorseCode, getMorseTimings } from '@/lib/morse-code';
-import { audioManager } from '@/lib/audio-manager';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import './morse-translator.css'; // 新增：引入自定义样式
 
 // Enhanced Morse Code Visualizer with CRT effect
 const MorseVisualizer = ({ morse, isPlaying, progress }: { morse: string; isPlaying: boolean; progress: number }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [blinkingDots, setBlinkingDots] = useState<Set<number>>(new Set());
-  
+
   useEffect(() => {
     if (isPlaying) {
       const totalChars = morse.length;
       const newIndex = Math.floor(progress * totalChars);
       setCurrentIndex(newIndex);
-      
       // Add blinking effect for active elements
       const newBlinking = new Set<number>();
       for (let i = Math.max(0, newIndex - 3); i <= newIndex; i++) {
@@ -44,27 +42,27 @@ const MorseVisualizer = ({ morse, isPlaying, progress }: { morse: string; isPlay
       }
       setBlinkingDots(newBlinking);
     } else {
-      setCurrentIndex(0);
+      setCurrentIndex(morse.length); // 变色到全部已播放
       setBlinkingDots(new Set());
     }
   }, [isPlaying, progress, morse]);
-  
+
   const renderMorseChar = (char: string, index: number) => {
     const isActive = isPlaying && index <= currentIndex;
+    const isPlayed = !isPlaying && index < currentIndex; // 新增: 播放过的变色
     const isBlinking = blinkingDots.has(index);
-    
     if (char === '.') {
       return (
-        <div 
-          key={index} 
-          className={`morse-dot ${isActive ? 'active' : ''} ${isBlinking ? 'animate-pulse' : ''}`}
+        <div
+          key={index}
+          className={`morse-dot${isActive ? ' active' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
         />
       );
     } else if (char === '-') {
       return (
-        <div 
-          key={index} 
-          className={`morse-dash ${isActive ? 'active' : ''} ${isBlinking ? 'animate-pulse' : ''}`}
+        <div
+          key={index}
+          className={`morse-dash${isActive ? ' active' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
         />
       );
     } else if (char === ' ') {
@@ -78,7 +76,7 @@ const MorseVisualizer = ({ morse, isPlaying, progress }: { morse: string; isPlay
     }
     return null;
   };
-  
+
   return (
     <div className="morse-visualization crt-screen">
       <div className="flex items-center gap-1 flex-wrap">
@@ -126,6 +124,12 @@ export default function MorseTranslator() {
   const [speed, setSpeed] = useState([1]);
   const [autoPlay, setAutoPlay] = useState(false);
   const [isTransmitting, setIsTransmitting] = useState(false);
+  const [lastMorse, setLastMorse] = useState(''); // 记录上次morse
+  const [lastPlayIndex, setLastPlayIndex] = useState(0); // 记录上次播放到哪里
+
+  // 自动播放所有新增内容（分段连续播放）
+  const [autoQueue, setAutoQueue] = useState<string[]>([]);
+  const [autoOffset, setAutoOffset] = useState(0);
 
   const translate = useCallback((input: string, currentMode: typeof mode) => {
     if (!input.trim()) return '';
@@ -151,12 +155,32 @@ export default function MorseTranslator() {
 
   const handleInputChange = (value: string) => {
     setInputText(value);
-    
     if (autoPlay && value.trim() && mode === 'text-to-morse') {
       const morse = textToMorse(value);
-      if (morse) {
-        setTimeout(() => playMorseCode(morse), 300);
+      // 找到新增部分（支持多段连续新增）
+      let startIdx = 0;
+      for (let i = 0; i < Math.min(lastMorse.length, morse.length); i++) {
+        if (lastMorse[i] !== morse[i]) {
+          startIdx = i;
+          break;
+        }
+        if (i === lastMorse.length - 1) {
+          startIdx = lastMorse.length;
+        }
       }
+      if (morse.length > lastMorse.length) {
+        // 新增多段内容
+        const newMorse = morse.slice(startIdx);
+        setAutoQueue(q => q.concat(newMorse.split(/(?=[.\-/ ])/g).filter(Boolean)));
+        setAutoOffset(startIdx);
+      }
+      setLastMorse(morse);
+      setLastPlayIndex(startIdx);
+    } else {
+      setLastMorse('');
+      setLastPlayIndex(0);
+      setAutoQueue([]);
+      setAutoOffset(0);
     }
   };
 
@@ -168,27 +192,35 @@ export default function MorseTranslator() {
     setOutputText(translate(outputText, newMode));
   };
 
-  const playMorseCode = async (morse?: string) => {
+  // 自动队列播放
+  useEffect(() => {
+    if (autoPlay && autoQueue.length > 0 && !isPlaying) {
+      const next = autoQueue[0];
+      playMorseCode(next, autoOffset);
+      setAutoQueue(q => q.slice(1));
+      setAutoOffset(o => o + next.length);
+    }
+    // eslint-disable-next-line
+  }, [autoQueue, isPlaying, autoPlay]);
+
+  const playMorseCode = async (morse?: string, offset = 0) => {
+    stopAudio();
     const morseToPlay = morse || (mode === 'text-to-morse' ? outputText : inputText);
-    
     if (!morseToPlay || isPlaying) return;
-    
     const timings = getMorseTimings(morseToPlay);
     if (timings.length === 0) return;
-    
     setIsPlaying(true);
     setIsTransmitting(true);
-    setPlayProgress(0);
-    
+    setPlayProgress(offset / (outputText.length || 1));
     await audioManager.playMorseCode(
       timings,
       frequency[0],
       speed[0],
-      (progress) => setPlayProgress(progress),
+      (progress) => setPlayProgress((offset + progress * morseToPlay.length) / (outputText.length || 1)),
       () => {
         setIsPlaying(false);
         setIsTransmitting(false);
-        setPlayProgress(0);
+        setPlayProgress((offset + morseToPlay.length) / (outputText.length || 1));
       }
     );
   };
