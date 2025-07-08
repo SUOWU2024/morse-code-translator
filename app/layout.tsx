@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: 'Morse Code Translator - Free Online Text to Morse Converter',
     template: '%s | Morse Code Translator'
   },
-  description: 'Free online Morse code translator with real-time audio feedback and visual representation. Convert text to Morse code and vice versa instantly. Professional Morse code converter with authentic telegraph experience.',
+  description: 'Professional morse code translator with instant text conversion and real-time audio feedback. Free online morse code translator for amateur radio, emergency communications, and learning.',
   keywords: [
     'morse code translator',
     'morse code converter',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     url: 'https://morsecodetranslator.codes',
     siteName: 'Morse Code Translator',
     title: 'Morse Code Translator - Free Online Text to Morse Converter',
-    description: 'Free online Morse code translator with real-time audio feedback and visual representation. Convert text to Morse code and vice versa instantly.',
+    description: 'Professional morse code translator with instant text conversion and real-time audio feedback. Free online morse code translator for amateur radio, emergency communications, and learning.',
     images: [
       {
         url: '/og-image.jpg',
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Morse Code Translator - Free Online Text to Morse Converter',
-    description: 'Free online Morse code translator with real-time audio feedback and visual representation. Convert text to Morse code instantly.',
+    description: 'Professional morse code translator with instant text conversion and real-time audio feedback. Free online morse code translator for amateur radio, emergency communications, and learning.',
     images: ['/og-image.jpg'],
     creator: '@morsecodetrans',
   },

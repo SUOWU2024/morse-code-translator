@@ -2,6 +2,7 @@ import { Footer } from '@/components/footer';
 import MorseTranslator from '@/components/morse-translator';
 import { Navigation } from '@/components/navigation';
 import { SEOJsonLd } from '@/components/seo';
+import { SEOContent } from '@/components/seo-content';
 import { Toaster } from '@/components/ui/sonner';
 import { generateMetadata, pagesSEO } from '@/lib/seo';
 import { Metadata } from 'next';
@@ -31,9 +32,10 @@ export default function Home() {
           <div className="py-16 px-6">
             <MorseTranslator language="en" />
           </div>
+          <SEOContent language="en" />
         </div>
       </div>
-      <SEOJsonLd page="home" language="en" />
+      <SEOJsonLd page="home" language="en" includeFAQ={true} />
       <Footer />
       <Toaster />
     </>

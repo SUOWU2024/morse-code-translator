@@ -12,7 +12,7 @@ export function Footer() {
               <div className="p-2 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg border border-green-400/30">
                 <Radio className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold neon-text">Morse Telegraph</span>
+              <span className="text-xl font-bold neon-text">Morse Code Translator</span>
             </div>
             <p className="text-gray-400 terminal-text">
               Professional Morse code translator with real-time audio feedback, visual representation, and authentic telegraph experience.
@@ -41,7 +41,7 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-purple-300">Connect</h3>
             <div className="space-y-2 text-gray-400 terminal-text">
-              <p>contact@morsetelegraph.dev</p>
+              <p>contact@morsecodetranslator.codes</p>
             </div>
           </div>
         </div>
