@@ -10,21 +10,75 @@
   background-color: #0ea5e9 !important;
   opacity: 1;
   box-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
+  animation: pulse-glow 0.5s ease-in-out infinite alternate;
 }
 
-/* 基础摩斯码点和划样式 */
+/* 基础摩斯码点和划样式 - 增大尺寸 */
 .morse-dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   background-color: #22c55e;
   border-radius: 50%;
   transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
 .morse-dash {
-  width: 24px;
-  height: 8px;
+  width: 36px;
+  height: 12px;
   background-color: #22c55e;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+/* 视觉传输区域的特殊样式 */
+.morse-visualization {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 30, 20, 0.9) 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.morse-visualization::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+  animation: sweep 3s infinite;
+}
+
+/* 扫描线动画 */
+@keyframes sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 脉冲发光动画 */
+@keyframes pulse-glow {
+  0% { 
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 20px rgba(14, 165, 233, 1);
+    transform: scale(1.1);
+  }
+}
+
+/* 打字光标样式增强 */
+.typing-cursor {
+  animation: blink 1s infinite;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }

@@ -107,11 +107,17 @@ const MorseVisualizer = ({
 
   return (
     <div className="morse-visualization crt-screen">
-      <div className="flex items-center gap-1 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap justify-center min-h-[80px]">
         {morse.split('').map((char, index) => renderMorseChar(char, index))}
         {(isManualPlaying || isAutoPlaying) && (
-          <div className="typing-cursor w-0.5 h-6 bg-green-400 ml-2" />
+          <div className="typing-cursor w-1 h-8 bg-green-400 ml-3" />
         )}
+      </div>
+      <div className="text-center mt-4 terminal-text text-sm opacity-70">
+        {isManualPlaying && `Manual Transmission: ${Math.round(manualProgress * 100)}%`}
+        {isAutoPlaying && `Auto Transmission: ${Math.round(autoProgress * 100)}%`}
+        {!isManualPlaying && !isAutoPlaying && playedLength > 0 && `Transmitted: ${playedLength}/${morse.length} chars`}
+        {!isManualPlaying && !isAutoPlaying && playedLength === 0 && 'Ready for transmission'}
       </div>
     </div>
   );
@@ -329,246 +335,249 @@ export default function MorseTranslator() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pb-20">
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-        {/* Main Translator */}
-        <div className="xl:col-span-3 space-y-8">
-          <Card className="retro-card">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="neon-text text-2xl flex items-center gap-3">
-                  <Radio className="h-7 w-7" />
-                  MORSE TELEGRAPH STATION
-                </CardTitle>
-                <Button onClick={toggleMode} className="retro-button" size="sm">
-                  <ArrowUpDown className="h-4 w-4 mr-2" />
-                  SWITCH MODE
-                </Button>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge className="bg-green-900 text-green-300 border-green-500">
-                  {mode === 'text-to-morse' ? 'TEXT → MORSE' : 'MORSE → TEXT'}
-                </Badge>
-                <div className="circuit-pattern h-px flex-1 opacity-30" />
+    <div className="max-w-6xl mx-auto px-6 pb-20">
+      <div className="space-y-8">
+        {/* Header Card */}
+        <Card className="retro-card">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="neon-text text-2xl flex items-center gap-3">
+                <Radio className="h-7 w-7" />
+                MORSE TELEGRAPH STATION
+              </CardTitle>
+              <Button onClick={toggleMode} className="retro-button" size="sm">
+                <ArrowUpDown className="h-4 w-4 mr-2" />
+                SWITCH MODE
+              </Button>
+            </div>
+            <div className="flex items-center gap-4">
+              <Badge className="bg-green-900 text-green-300 border-green-500">
+                {mode === 'text-to-morse' ? 'TEXT → MORSE' : 'MORSE → TEXT'}
+              </Badge>
+              <div className="circuit-pattern h-px flex-1 opacity-30" />
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Visual Transmission - Top Position */}
+        {mode === 'text-to-morse' && outputText && (
+          <Card className="retro-card border-4 border-yellow-400 shadow-2xl shadow-yellow-400/30 bg-gradient-to-br from-gray-900 to-gray-800 sticky top-4 z-10">
+            <CardHeader className="pb-3">
+              <CardTitle className="neon-text text-2xl flex items-center gap-3 text-yellow-300">
+                <Activity className="h-8 w-8 animate-pulse" />
+                VISUAL TRANSMISSION
+              </CardTitle>
+              <div className="text-sm terminal-text text-yellow-200 opacity-80">
+                Real-time morse code visualization with signal patterns
               </div>
             </CardHeader>
-            
-            <CardContent className="space-y-6">
-              <div className="space-y-3">
-                <Label className="terminal-text text-sm font-medium">
-                  {mode === 'text-to-morse' ? 'INPUT MESSAGE' : 'MORSE CODE INPUT'}
-                </Label>
-                <Textarea
-                  value={inputText}
-                  onChange={(e) => handleInputChange(e.target.value)}
-                  placeholder={
-                    mode === 'text-to-morse' 
-                      ? 'Enter your message here...' 
-                      : 'Enter Morse code (. - / for spaces)...'
-                  }
-                  className="terminal-text min-h-[120px] crt-screen"
+            <CardContent className="space-y-4">
+              <div className="p-6 bg-black rounded-lg border-2 border-yellow-500">
+                <MorseVisualizer 
+                  morse={outputText} 
+                  isManualPlaying={isManualPlaying}
+                  manualProgress={manualProgress}
+                  isAutoPlaying={isAutoPlaying}
+                  autoProgress={autoProgress}
+                  playedLength={playedLength}
                 />
-                <div className="flex gap-3">
-                  <Button onClick={clearAll} className="retro-button" size="sm">
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    CLEAR
-                  </Button>
-                  {inputText && (
+              </div>
+              
+              {/* Integrated Controls */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t border-yellow-500/30">
+                {/* Station Status */}
+                <div className="space-y-3">
+                  <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    STATION STATUS
+                  </h4>
+                  <div className="space-y-2">
+                    <LEDIndicator active={!!inputText} label="INPUT READY" />
+                    <LEDIndicator active={!!outputText} label="OUTPUT READY" />
+                    <LEDIndicator active={isManualPlaying || isAutoPlaying} label="TRANSMITTING" />
+                    <LEDIndicator active={autoPlay} label="AUTO-TRANSMIT" />
+                  </div>
+                </div>
+
+                {/* Telegraph Controls */}
+                <div className="space-y-3">
+                  <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
+                    <Signal className="h-4 w-4" />
+                    CONTROLS
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="terminal-text text-xs">
+                        FREQUENCY: {frequency[0]} Hz
+                      </Label>
+                      <Slider
+                        value={frequency}
+                        onValueChange={setFrequency}
+                        min={200}
+                        max={1000}
+                        step={50}
+                        className="retro-slider"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="terminal-text text-xs">
+                        SPEED: {speed[0]}x
+                      </Label>
+                      <Slider
+                        value={speed}
+                        onValueChange={setSpeed}
+                        min={0.5}
+                        max={3}
+                        step={0.1}
+                        className="retro-slider"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transmission Controls */}
+                <div className="space-y-3">
+                  <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
+                    <Radio className="h-4 w-4" />
+                    TRANSMISSION
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="auto-play"
+                        checked={autoPlay}
+                        onCheckedChange={setAutoPlay}
+                        className="data-[state=checked]:bg-green-600"
+                      />
+                      <Label htmlFor="auto-play" className="terminal-text text-xs">
+                        AUTO-TRANSMIT
+                      </Label>
+                    </div>
+                    
                     <Button
-                      onClick={() => copyToClipboard(inputText)}
-                      className="retro-button"
+                      onClick={playManualMorse}
+                      disabled={isManualPlaying || isAutoPlaying}
+                      className="retro-button bg-yellow-900 border-yellow-500 hover:bg-yellow-800 w-full"
                       size="sm"
                     >
-                      <Copy className="h-4 w-4 mr-2" />
-                      COPY INPUT
+                      {isManualPlaying ? (
+                        <>
+                          <Square className="h-4 w-4 mr-2" />
+                          {Math.round(manualProgress * 100)}%
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-2" />
+                          TRANSMIT
+                        </>
+                      )}
                     </Button>
-                  )}
-                </div>
-              </div>
 
-              <Separator className="bg-green-500 opacity-30" />
-
-              <div className="space-y-3">
-                <Label className="terminal-text text-sm font-medium">
-                  {mode === 'text-to-morse' ? 'MORSE CODE OUTPUT' : 'DECODED MESSAGE'}
-                </Label>
-                <Textarea
-                  value={outputText}
-                  readOnly
-                  placeholder="Output will appear here..."
-                  className="terminal-text min-h-[120px] crt-screen"
-                />
-                
-                {/* Enhanced Visual Morse Code Display */}
-                {mode === 'text-to-morse' && outputText && (
-                  <div className="space-y-2">
-                    <Label className="terminal-text text-sm font-medium">
-                      VISUAL TRANSMISSION
-                    </Label>
-                    <MorseVisualizer 
-                      morse={outputText} 
-                      isManualPlaying={isManualPlaying}
-                      manualProgress={manualProgress}
-                      isAutoPlaying={isAutoPlaying}
-                      autoProgress={autoProgress}
-                      playedLength={playedLength}
-                    />
-                  </div>
-                )}
-                
-                <div className="flex gap-3">
-                  {outputText && (
-                    <>
+                    {(isManualPlaying || isAutoPlaying) && (
                       <Button
-                        onClick={() => copyToClipboard(outputText)}
-                        className="retro-button"
+                        onClick={stopAllAudio}
+                        className="retro-button bg-red-900 border-red-500 hover:bg-red-800 w-full"
                         size="sm"
                       >
-                        <Copy className="h-4 w-4 mr-2" />
-                        COPY OUTPUT
+                        <Square className="h-4 w-4 mr-2" />
+                        STOP
                       </Button>
-                      {mode === 'text-to-morse' && (
-                        <Button
-                          onClick={playManualMorse}
-                          disabled={isManualPlaying || isAutoPlaying}
-                          className="retro-button"
-                          size="sm"
-                        >
-                          {isManualPlaying ? (
-                            <>
-                              <Square className="h-4 w-4 mr-2" />
-                              TRANSMITTING {Math.round(manualProgress * 100)}%
-                            </>
-                          ) : (
-                            <>
-                              <Play className="h-4 w-4 mr-2" />
-                              TRANSMIT
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </>
-                  )}
+                    )}
+
+                    {/* Telegraph Key */}
+                    <div className="text-center">
+                      <Label className="terminal-text text-xs block mb-1">
+                        TELEGRAPH KEY
+                      </Label>
+                      <TelegraphKey isPressed={isManualPlaying || isAutoPlaying} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+        )}
 
-          {/* Telegraph Controls */}
-          <Card className="retro-card">
-            <CardHeader>
-              <CardTitle className="neon-text flex items-center gap-3">
-                <Signal className="h-5 w-5" />
-                TELEGRAPH CONTROLS
+        {/* Input Message - Fixed Position */}
+        <div className="sticky top-80 z-5">
+          <Card className="retro-card border-2 border-blue-500 shadow-lg shadow-blue-500/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="neon-text text-xl flex items-center gap-3 text-blue-300">
+                <Signal className="h-6 w-6" />
+                {mode === 'text-to-morse' ? 'INPUT MESSAGE' : 'MORSE CODE INPUT'}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label className="terminal-text text-sm font-medium">
-                    FREQUENCY: {frequency[0]} Hz
-                  </Label>
-                  <Slider
-                    value={frequency}
-                    onValueChange={setFrequency}
-                    min={200}
-                    max={1000}
-                    step={50}
-                    className="retro-slider"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <Label className="terminal-text text-sm font-medium">
-                    TRANSMISSION SPEED: {speed[0]}x
-                  </Label>
-                  <Slider
-                    value={speed}
-                    onValueChange={setSpeed}
-                    min={0.5}
-                    max={3}
-                    step={0.1}
-                    className="retro-slider"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Switch
-                    id="auto-play"
-                    checked={autoPlay}
-                    onCheckedChange={setAutoPlay}
-                    className="data-[state=checked]:bg-green-600"
-                  />
-                  <Label htmlFor="auto-play" className="terminal-text text-sm font-medium">
-                    AUTO-TRANSMIT ON INPUT
-                  </Label>
-                </div>
-                
-                {(isManualPlaying || isAutoPlaying) && (
+            <CardContent className="space-y-4">
+              <Textarea
+                value={inputText}
+                onChange={(e) => handleInputChange(e.target.value)}
+                placeholder={
+                  mode === 'text-to-morse' 
+                    ? 'Enter your message here...' 
+                    : 'Enter Morse code (. - / for spaces)...'
+                }
+                className="terminal-text min-h-[140px] crt-screen text-lg border-2 border-blue-400 focus:border-blue-300"
+              />
+              <div className="flex gap-3">
+                <Button onClick={clearAll} className="retro-button" size="sm">
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  CLEAR
+                </Button>
+                {inputText && (
                   <Button
-                    onClick={stopAllAudio}
-                    className="retro-button bg-red-900 border-red-500 hover:bg-red-800"
+                    onClick={() => copyToClipboard(inputText)}
+                    className="retro-button"
                     size="sm"
                   >
-                    <Square className="h-4 w-4 mr-2" />
-                    STOP TRANSMISSION
+                    <Copy className="h-4 w-4 mr-2" />
+                    COPY INPUT
                   </Button>
                 )}
-              </div>
-
-              {/* Telegraph Key Animation */}
-              <div className="text-center">
-                <Label className="terminal-text text-sm font-medium block mb-2">
-                  TELEGRAPH KEY
-                </Label>
-                <TelegraphKey isPressed={isManualPlaying || isAutoPlaying} />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Status Panel & Reference */}
-        <div className="space-y-6">
-          {/* Status Panel */}
-          <Card className="retro-card">
-            <CardHeader>
-              <CardTitle className="neon-text text-lg flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                STATION STATUS
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <LEDIndicator active={!!inputText} label="INPUT READY" />
-              <LEDIndicator active={!!outputText} label="OUTPUT READY" />
-              <LEDIndicator active={isManualPlaying || isAutoPlaying} label="TRANSMITTING" />
-              <LEDIndicator active={autoPlay} label="AUTO-TRANSMIT" />
-              
-              <Separator className="bg-green-500 opacity-30" />
-              
-              <div className="space-y-2">
-                <div className="terminal-text text-xs">
-                  FREQUENCY: <span className="text-green-300">{frequency[0]} Hz</span>
-                </div>
-                <div className="terminal-text text-xs">
-                  SPEED: <span className="text-green-300">{speed[0]}x</span>
-                </div>
-                <div className="terminal-text text-xs">
-                  MODE: <span className="text-green-300">{mode.toUpperCase()}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Morse Code Output - Prominent Position */}
+        <Card className="retro-card border-2 border-green-500 shadow-lg shadow-green-500/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="neon-text text-xl flex items-center gap-3 text-green-300">
+              <Radio className="h-6 w-6" />
+              {mode === 'text-to-morse' ? 'MORSE CODE OUTPUT' : 'DECODED MESSAGE'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              value={outputText}
+              readOnly
+              placeholder="Output will appear here..."
+              className="terminal-text min-h-[140px] crt-screen text-lg border-2 border-green-400 bg-green-950/20"
+            />
+            <div className="flex gap-3">
+              {outputText && (
+                <Button
+                  onClick={() => copyToClipboard(outputText)}
+                  className="retro-button"
+                  size="sm"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  COPY OUTPUT
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Quick Reference */}
-          <Card className="retro-card">
-            <CardHeader>
-              <CardTitle className="neon-text text-lg flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                MORSE CODE REFERENCE
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        {/* Morse Code Reference - Moved below output */}
+        <Card className="retro-card">
+          <CardHeader>
+            <CardTitle className="neon-text text-lg flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              MORSE CODE REFERENCE
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <h4 className="terminal-text text-sm font-medium">ALPHABET</h4>
                 <div className="grid grid-cols-2 gap-1 text-xs">
@@ -589,8 +598,6 @@ export default function MorseTranslator() {
                 </div>
               </div>
               
-              <Separator className="bg-green-500 opacity-30" />
-              
               <div className="space-y-3">
                 <h4 className="terminal-text text-sm font-medium">NUMBERS</h4>
                 <div className="grid grid-cols-2 gap-1 text-xs">
@@ -601,22 +608,22 @@ export default function MorseTranslator() {
                     </div>
                   ))}
                 </div>
-              </div>
+                
+                <Separator className="bg-green-500 opacity-30" />
 
-              <Separator className="bg-green-500 opacity-30" />
-
-              <div className="space-y-2 text-xs terminal-text">
-                <h4 className="font-medium">USAGE GUIDE</h4>
-                <ul className="space-y-1 opacity-80">
-                  <li>• DOT (.) = SHORT SIGNAL</li>
-                  <li>• DASH (-) = LONG SIGNAL</li>
-                  <li>• SPACE = LETTER SEPARATION</li>
-                  <li>• "/" = WORD SEPARATION</li>
-                </ul>
+                <div className="space-y-2 text-xs terminal-text">
+                  <h4 className="font-medium">USAGE GUIDE</h4>
+                  <ul className="space-y-1 opacity-80">
+                    <li>• DOT (.) = SHORT SIGNAL</li>
+                    <li>• DASH (-) = LONG SIGNAL</li>
+                    <li>• SPACE = LETTER SEPARATION</li>
+                    <li>• "/" = WORD SEPARATION</li>
+                  </ul>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
