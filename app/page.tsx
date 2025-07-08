@@ -1,3 +1,4 @@
+import { Footer } from '@/components/footer';
 import MorseTranslator from '@/components/morse-translator';
 import { Navigation } from '@/components/navigation';
 import { Toaster } from '@/components/ui/sonner';
@@ -27,6 +28,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
       <Toaster />
     </>
   );

@@ -77,6 +77,24 @@ export const translations = {
       // Toast Messages
       copiedToClipboard: "Copied to clipboard!",
       failedToCopy: "Failed to copy"
+    },
+    
+    // About Page (English only - others are single language)
+    about: {
+      title: "About Morse Telegraph Station",
+      subtitle: "Bridging the gap between traditional communication and modern technology",
+      mission: "Our Mission",
+      missionText: "To preserve and modernize the art of Morse code communication through innovative digital tools that make learning and using Morse code accessible to everyone.",
+      features: "Key Features",
+      featuresList: [
+        "Real-time audio feedback with customizable frequency and speed",
+        "Visual transmission display with authentic telegraph aesthetics",
+        "Comprehensive Morse code reference and learning tools",
+        "Repeat mode for continuous practice",
+        "Multi-language support for global accessibility"
+      ],
+      history: "Morse Code History",
+      historyText: "Morse code was developed in the 1830s by Samuel Morse and Alfred Vail. It revolutionized long-distance communication and remained the primary method for telegraph communication for over a century. Today, it's still used in aviation, maritime, and amateur radio communications."
     }
   },
   
@@ -157,6 +175,24 @@ export const translations = {
       // Toast Messages
       copiedToClipboard: "已复制到剪贴板！",
       failedToCopy: "复制失败"
+    },
+    
+    // About Page (Chinese)
+    about: {
+      title: "关于摩斯电报站",
+      subtitle: "连接传统通信与现代技术的桥梁",
+      mission: "我们的使命",
+      missionText: "通过创新的数字工具保护和现代化摩斯码通信艺术，让每个人都能轻松学习和使用摩斯码。",
+      features: "主要特性",
+      featuresList: [
+        "可自定义频率和速度的实时音频反馈",
+        "具有真实电报美学的可视化传输显示",
+        "全面的摩斯码参考和学习工具",
+        "用于持续练习的循环模式",
+        "多语言支持，方便全球用户使用"
+      ],
+      history: "摩斯码历史",
+      historyText: "摩斯码由塞缪尔·摩斯和阿尔弗雷德·维尔在1830年代开发。它革命性地改变了长距离通信，并在一个多世纪内一直是电报通信的主要方法。如今，它仍在航空、海事和业余无线电通信中使用。"
     }
   }
 };
