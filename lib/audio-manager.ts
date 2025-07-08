@@ -63,14 +63,14 @@ export class AudioManager {
     
     this.isPlaying = true;
     let currentTime = this.audioContext.currentTime;
-    const totalDuration = timings.reduce((sum, timing) => sum + timing.duration / speed, 0);
-    let accumulatedDelay = 0;
+    const totalDurationMs = timings.reduce((sum, timing) => sum + timing.duration, 0) / speed;
+    let accumulatedDelayMs = 0;
     
     timings.forEach((timing, index) => {
-      const duration = timing.duration / 1000 / speed; // Convert to seconds and apply speed
+      const durationSeconds = timing.duration / 1000 / speed; // Convert to seconds and apply speed
       
       if (timing.type === 'dot' || timing.type === 'dash') {
-        this.createBeep(frequency, duration, currentTime);
+        this.createBeep(frequency, durationSeconds, currentTime);
       }
       
       // Schedule progress callback with accurate timing
@@ -78,8 +78,8 @@ export class AudioManager {
         setTimeout(() => {
           if (this.isPlaying) { // Only update if still playing
             if (onProgress) {
-              const elapsed = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration / speed, 0);
-              const progress = elapsed / totalDuration;
+              const elapsedMs = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration, 0) / speed;
+              const progress = elapsedMs / totalDurationMs;
               onProgress(Math.min(progress, 1)); // Ensure progress doesn't exceed 1
             }
             
@@ -87,18 +87,18 @@ export class AudioManager {
               onCharacterProgress(index);
             }
           }
-        }, accumulatedDelay);
+        }, accumulatedDelayMs);
       }
       
-      accumulatedDelay += timing.duration / speed;
-      currentTime += duration;
+      accumulatedDelayMs += timing.duration / speed;
+      currentTime += durationSeconds;
     });
     
     // Schedule completion callback
     setTimeout(() => {
       this.isPlaying = false;
       onComplete?.();
-    }, totalDuration);
+    }, totalDurationMs);
   }
   
   stop() {

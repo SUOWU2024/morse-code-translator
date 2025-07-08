@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { audioManager } from '@/lib/audio-manager';
 import { getCurrentPlayingCharIndex, getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
@@ -16,6 +17,7 @@ import {
   Copy,
   Play,
   Radio,
+  Repeat,
   RotateCcw,
   Signal,
   Square
@@ -142,6 +144,7 @@ export default function MorseTranslator() {
   const [manualProgress, setManualProgress] = useState(0);
   const [manualTransmitting, setManualTransmitting] = useState(false);
   const [currentPlayingCharIndex, setCurrentPlayingCharIndex] = useState(-1);
+  const [repeatMode, setRepeatMode] = useState(false); // 循环播放模式
   
   const [playedLength, setPlayedLength] = useState(0); // 已播放的长度
   
@@ -192,33 +195,51 @@ export default function MorseTranslator() {
     
     setIsManualPlaying(true);
     setManualTransmitting(true);
-    setManualProgress(0);
-    setCurrentPlayingCharIndex(-1);
     
-    // 使用非阻塞方式播放
-    audioManager.playMorseCode(
-      timings,
-      frequency[0],
-      speed[0],
-      (progress) => setManualProgress(progress),
-      () => {
+    const playOnce = async () => {
+      setManualProgress(0);
+      setCurrentPlayingCharIndex(-1);
+      
+      // 使用非阻塞方式播放
+      await audioManager.playMorseCode(
+        timings,
+        frequency[0],
+        speed[0],
+        (progress) => setManualProgress(progress),
+        () => {
+          // 播放完成回调
+          setManualProgress(1); // 显示完成状态
+          setPlayedLength(outputText.length); // 标记全部播放完成
+          setCurrentPlayingCharIndex(-1);
+          
+          // 如果开启了循环模式且仍在播放状态，继续播放
+          if (repeatMode && isManualPlaying) {
+            setTimeout(() => {
+              if (repeatMode && isManualPlaying) {
+                playOnce(); // 递归调用继续播放
+              }
+            }, 1000); // 间隔1秒后重新播放
+          } else {
+            // 停止播放
+            setIsManualPlaying(false);
+            setManualTransmitting(false);
+          }
+        },
+        (timingIndex) => {
+          // 更新当前播放字符索引
+          const charIndex = getCurrentPlayingCharIndex(outputText, timingIndex);
+          setCurrentPlayingCharIndex(charIndex);
+        }
+      ).catch(() => {
+        // 播放出错时也要重置状态
         setIsManualPlaying(false);
         setManualTransmitting(false);
-        setManualProgress(1); // 显示完成状态
-        setPlayedLength(outputText.length); // 标记全部播放完成
         setCurrentPlayingCharIndex(-1);
-      },
-      (timingIndex) => {
-        // 更新当前播放字符索引
-        const charIndex = getCurrentPlayingCharIndex(outputText, timingIndex);
-        setCurrentPlayingCharIndex(charIndex);
-      }
-    ).catch(() => {
-      // 播放出错时也要重置状态
-      setIsManualPlaying(false);
-      setManualTransmitting(false);
-      setCurrentPlayingCharIndex(-1);
-    });
+      });
+    };
+    
+    // 开始播放
+    playOnce();
   };
 
   // 停止所有播放
@@ -227,6 +248,7 @@ export default function MorseTranslator() {
     setIsManualPlaying(false);
     setManualTransmitting(false);
     setCurrentPlayingCharIndex(-1);
+    // 注意：不要在这里关闭repeatMode，让用户手动控制
   };
 
   const copyToClipboard = async (text: string) => {
@@ -290,7 +312,7 @@ export default function MorseTranslator() {
 
         {/* Visual Transmission - Top Position */}
         {mode === 'text-to-morse' && outputText && (
-          <Card className="retro-card border-4 border-yellow-400 shadow-2xl shadow-yellow-400/30 bg-gradient-to-br from-gray-900 to-gray-800 sticky top-4 z-10">
+          <Card className="retro-card border-4 border-yellow-400 shadow-2xl shadow-yellow-400/30 bg-gradient-to-br from-gray-900 to-gray-800 sticky top-20 z-10">
             <CardHeader className="pb-3">
               <CardTitle className="neon-text text-2xl flex items-center gap-3 text-yellow-300">
                 <Activity className="h-8 w-8 animate-pulse" />
@@ -323,6 +345,7 @@ export default function MorseTranslator() {
                     <LEDIndicator active={!!inputText} label="INPUT READY" />
                     <LEDIndicator active={!!outputText} label="OUTPUT READY" />
                     <LEDIndicator active={isManualPlaying} label="TRANSMITTING" />
+                    <LEDIndicator active={repeatMode} label="REPEAT MODE" />
                   </div>
                 </div>
 
@@ -353,8 +376,8 @@ export default function MorseTranslator() {
                       <Slider
                         value={speed}
                         onValueChange={setSpeed}
-                        min={0.5}
-                        max={3}
+                        min={0.1}
+                        max={5}
                         step={0.1}
                         className="retro-slider"
                       />
@@ -399,6 +422,31 @@ export default function MorseTranslator() {
                       </Button>
                     )}
 
+                    {/* Repeat Mode Toggle */}
+                    <div className={`flex items-center justify-between space-x-2 p-3 rounded-lg border transition-all duration-200 ${
+                      repeatMode 
+                        ? 'bg-yellow-600 bg-opacity-30 border-yellow-400 shadow-lg shadow-yellow-400/20' 
+                        : 'bg-yellow-900 bg-opacity-20 border-yellow-500 border-opacity-30'
+                    }`}>
+                      <div className="flex items-center space-x-2">
+                        <Repeat className={`h-4 w-4 transition-colors duration-200 ${
+                          repeatMode ? 'text-yellow-200' : 'text-yellow-300'
+                        }`} />
+                        <Label htmlFor="repeat-mode" className={`terminal-text text-xs font-medium transition-colors duration-200 ${
+                          repeatMode ? 'text-yellow-100' : 'text-yellow-300'
+                        }`}>
+                          REPEAT MODE
+                        </Label>
+                      </div>
+                      <Switch
+                        id="repeat-mode"
+                        checked={repeatMode}
+                        onCheckedChange={setRepeatMode}
+                        disabled={isManualPlaying}
+                        className="data-[state=checked]:bg-yellow-400"
+                      />
+                    </div>
+
                     {/* Telegraph Key */}
                     <div className="text-center">
                       <Label className="terminal-text text-xs block mb-1">
@@ -413,9 +461,8 @@ export default function MorseTranslator() {
           </Card>
         )}
 
-        {/* Input Message - Fixed Position */}
-        <div className="sticky top-80 z-5">
-          <Card className="retro-card border-2 border-blue-500 shadow-lg shadow-blue-500/20">
+        {/* Input Message */}
+        <Card className="retro-card border-2 border-blue-500 shadow-lg shadow-blue-500/20">
             <CardHeader className="pb-3">
               <CardTitle className="neon-text text-xl flex items-center gap-3 text-blue-300">
                 <Signal className="h-6 w-6" />
@@ -451,7 +498,6 @@ export default function MorseTranslator() {
               </div>
             </CardContent>
           </Card>
-        </div>
 
         {/* Morse Code Output - Prominent Position */}
         <Card className="retro-card border-2 border-green-500 shadow-lg shadow-green-500/20">
