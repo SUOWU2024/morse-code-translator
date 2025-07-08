@@ -22,7 +22,7 @@ import {
   Signal,
   Square
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import './morse-translator.css'; // 新增：引入自定义样式
 
@@ -152,6 +152,19 @@ export default function MorseTranslator() {
   const [frequency, setFrequency] = useState([600]);
   const [speed, setSpeed] = useState([1]);
 
+  // 使用ref来存储最新的状态值，避免闭包问题
+  const repeatModeRef = useRef(repeatMode);
+  const isManualPlayingRef = useRef(isManualPlaying);
+  
+  // 更新ref的值
+  useEffect(() => {
+    repeatModeRef.current = repeatMode;
+  }, [repeatMode]);
+  
+  useEffect(() => {
+    isManualPlayingRef.current = isManualPlaying;
+  }, [isManualPlaying]);
+
   const translate = useCallback((input: string, currentMode: typeof mode) => {
     if (!input.trim()) return '';
     
@@ -208,18 +221,27 @@ export default function MorseTranslator() {
         (progress) => setManualProgress(progress),
         () => {
           // 播放完成回调
+          console.log('播放完成回调触发', { repeatMode: repeatModeRef.current, isManualPlaying: isManualPlayingRef.current });
           setManualProgress(1); // 显示完成状态
           setPlayedLength(outputText.length); // 标记全部播放完成
           setCurrentPlayingCharIndex(-1);
           
           // 如果开启了循环模式且仍在播放状态，继续播放
-          if (repeatMode && isManualPlaying) {
+          if (repeatModeRef.current && isManualPlayingRef.current) {
+            console.log('准备重复播放');
             setTimeout(() => {
-              if (repeatMode && isManualPlaying) {
+              console.log('setTimeout回调执行', { repeatMode: repeatModeRef.current, isManualPlaying: isManualPlayingRef.current });
+              if (repeatModeRef.current && isManualPlayingRef.current) {
+                console.log('开始重复播放');
+                // 重置进度并继续播放
+                setManualProgress(0);
+                setCurrentPlayingCharIndex(-1);
+                setPlayedLength(0);
                 playOnce(); // 递归调用继续播放
               }
-            }, 1000); // 间隔1秒后重新播放
+            }, 500); // 缩短间隔到500ms
           } else {
+            console.log('停止播放，未开启repeat或已手动停止');
             // 停止播放
             setIsManualPlaying(false);
             setManualTransmitting(false);
