@@ -1,7 +1,6 @@
-import './globals.css';
 import type { Metadata } from 'next';
 import { JetBrains_Mono, Orbitron } from 'next/font/google';
-import { Navigation } from '@/components/navigation';
+import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({ 
   subsets: ['latin'],
@@ -29,7 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jetbrainsMono.variable} ${orbitron.variable} font-mono`}>
-        <Navigation />
         <main>
           {children}
         </main>

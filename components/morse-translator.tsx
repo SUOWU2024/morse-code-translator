@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { audioManager } from '@/lib/audio-manager';
 import { getCurrentPlayingCharIndex, getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
+import { Language, translations } from '@/lib/translations';
 import {
   Activity,
   ArrowUpDown,
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import './morse-translator.css'; // 新增：引入自定义样式
+import './morse-translator.css';
 
 // Enhanced Morse Code Visualizer with CRT effect
 const MorseVisualizer = ({ 
@@ -32,13 +33,15 @@ const MorseVisualizer = ({
   isManualPlaying, 
   manualProgress, 
   playedLength,
-  currentPlayingCharIndex 
+  currentPlayingCharIndex,
+  language = 'en'
 }: { 
   morse: string; 
   isManualPlaying: boolean; 
   manualProgress: number;
   playedLength: number;
   currentPlayingCharIndex: number;
+  language?: Language;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [blinkingDots, setBlinkingDots] = useState<Set<number>>(new Set());
@@ -101,9 +104,9 @@ const MorseVisualizer = ({
         )}
       </div>
       <div className="text-center mt-4 terminal-text text-sm opacity-70">
-        {isManualPlaying && `Manual Transmission: ${Math.round(manualProgress * 100)}%`}
-        {!isManualPlaying && playedLength > 0 && `Transmitted: ${playedLength}/${morse.length} chars`}
-        {!isManualPlaying && playedLength === 0 && 'Ready for transmission'}
+        {isManualPlaying && `${language === 'en' ? 'Manual Transmission:' : '手动传输:'} ${Math.round(manualProgress * 100)}%`}
+        {!isManualPlaying && playedLength > 0 && `${language === 'en' ? 'Transmitted:' : '已传输:'} ${playedLength}/${morse.length} chars`}
+        {!isManualPlaying && playedLength === 0 && (language === 'en' ? 'Ready for transmission' : '准备传输')}
       </div>
     </div>
   );
@@ -134,7 +137,8 @@ const TelegraphKey = ({ isPressed }: { isPressed: boolean }) => (
   </div>
 );
 
-export default function MorseTranslator() {
+export default function MorseTranslator({ language = 'en' }: { language?: Language }) {
+  const t = translations[language];
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [mode, setMode] = useState<'text-to-morse' | 'morse-to-text'>('text-to-morse');
@@ -173,12 +177,12 @@ export default function MorseTranslator() {
         return textToMorse(input);
       } else {
         if (!isValidMorseCode(input)) {
-          return 'INVALID MORSE CODE FORMAT';
+          return t.morse.invalidMorseCode;
         }
         return morseToText(input);
       }
     } catch (error) {
-      return 'CONVERSION ERROR';
+      return t.morse.conversionError;
     }
   }, []);
 
@@ -276,11 +280,11 @@ export default function MorseTranslator() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success('Copied to clipboard!', {
+      toast.success(t.morse.copiedToClipboard, {
         style: { background: '#001100', color: '#00ff41', border: '1px solid #00ff41' }
       });
     } catch (error) {
-      toast.error('Failed to copy', {
+      toast.error(t.morse.failedToCopy, {
         style: { background: '#110000', color: '#ff4141', border: '1px solid #ff4141' }
       });
     }
@@ -316,16 +320,16 @@ export default function MorseTranslator() {
             <div className="flex items-center justify-between">
               <CardTitle className="neon-text text-2xl flex items-center gap-3">
                 <Radio className="h-7 w-7" />
-                MORSE TELEGRAPH STATION
+                {t.morse.title}
               </CardTitle>
               <Button onClick={toggleMode} className="retro-button" size="sm">
                 <ArrowUpDown className="h-4 w-4 mr-2" />
-                SWITCH MODE
+                {t.morse.switchMode}
               </Button>
             </div>
             <div className="flex items-center gap-4">
               <Badge className="bg-green-900 text-green-300 border-green-500">
-                {mode === 'text-to-morse' ? 'TEXT → MORSE' : 'MORSE → TEXT'}
+                {mode === 'text-to-morse' ? t.morse.textToMorse : t.morse.morseToText}
               </Badge>
               <div className="circuit-pattern h-px flex-1 opacity-30" />
             </div>
@@ -338,10 +342,10 @@ export default function MorseTranslator() {
             <CardHeader className="pb-3">
               <CardTitle className="neon-text text-2xl flex items-center gap-3 text-yellow-300">
                 <Activity className="h-8 w-8 animate-pulse" />
-                VISUAL TRANSMISSION
+                {t.morse.visualTransmission}
               </CardTitle>
               <div className="text-sm terminal-text text-yellow-200 opacity-80">
-                Real-time morse code visualization with signal patterns
+                {t.morse.visualDescription}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -352,6 +356,7 @@ export default function MorseTranslator() {
                   manualProgress={manualProgress}
                   playedLength={playedLength}
                   currentPlayingCharIndex={currentPlayingCharIndex}
+                  language={language}
                 />
               </div>
               
@@ -361,13 +366,13 @@ export default function MorseTranslator() {
                 <div className="space-y-3">
                   <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
                     <Activity className="h-4 w-4" />
-                    STATION STATUS
+                    {t.morse.stationStatus}
                   </h4>
                   <div className="space-y-2">
-                    <LEDIndicator active={!!inputText} label="INPUT READY" />
-                    <LEDIndicator active={!!outputText} label="OUTPUT READY" />
-                    <LEDIndicator active={isManualPlaying} label="TRANSMITTING" />
-                    <LEDIndicator active={repeatMode} label="REPEAT MODE" />
+                    <LEDIndicator active={!!inputText} label={t.morse.inputReady} />
+                    <LEDIndicator active={!!outputText} label={t.morse.outputReady} />
+                    <LEDIndicator active={isManualPlaying} label={t.morse.transmitting} />
+                    <LEDIndicator active={repeatMode} label={t.morse.repeatMode} />
                   </div>
                 </div>
 
@@ -375,12 +380,12 @@ export default function MorseTranslator() {
                 <div className="space-y-3">
                   <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
                     <Signal className="h-4 w-4" />
-                    CONTROLS
+                    {t.morse.controls}
                   </h4>
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="terminal-text text-xs">
-                        FREQUENCY: {frequency[0]} Hz
+                        {t.morse.frequency}: {frequency[0]} Hz
                       </Label>
                       <Slider
                         value={frequency}
@@ -393,7 +398,7 @@ export default function MorseTranslator() {
                     </div>
                     <div className="space-y-2">
                       <Label className="terminal-text text-xs">
-                        SPEED: {speed[0]}x
+                        {t.morse.speed}: {speed[0]}x
                       </Label>
                       <Slider
                         value={speed}
@@ -411,7 +416,7 @@ export default function MorseTranslator() {
                 <div className="space-y-3">
                   <h4 className="neon-text text-sm font-medium text-yellow-300 flex items-center gap-2">
                     <Radio className="h-4 w-4" />
-                    TRANSMISSION
+                    {t.morse.transmission}
                   </h4>
                   <div className="space-y-3">
                     <Button
@@ -428,7 +433,7 @@ export default function MorseTranslator() {
                       ) : (
                         <>
                           <Play className="h-4 w-4 mr-2" />
-                          TRANSMIT
+                          {t.morse.transmit}
                         </>
                       )}
                     </Button>
@@ -440,7 +445,7 @@ export default function MorseTranslator() {
                         size="sm"
                       >
                         <Square className="h-4 w-4 mr-2" />
-                        STOP
+                        {t.morse.stop}
                       </Button>
                     )}
 
@@ -457,7 +462,7 @@ export default function MorseTranslator() {
                         <Label htmlFor="repeat-mode" className={`terminal-text text-xs font-medium transition-colors duration-200 ${
                           repeatMode ? 'text-yellow-100' : 'text-yellow-300'
                         }`}>
-                          REPEAT MODE
+                          {t.morse.repeatMode}
                         </Label>
                       </div>
                       <Switch
@@ -472,7 +477,7 @@ export default function MorseTranslator() {
                     {/* Telegraph Key */}
                     <div className="text-center">
                       <Label className="terminal-text text-xs block mb-1">
-                        TELEGRAPH KEY
+                        {t.morse.telegraphKey}
                       </Label>
                       <TelegraphKey isPressed={isManualPlaying} />
                     </div>
@@ -488,7 +493,7 @@ export default function MorseTranslator() {
             <CardHeader className="pb-3">
               <CardTitle className="neon-text text-xl flex items-center gap-3 text-blue-300">
                 <Signal className="h-6 w-6" />
-                {mode === 'text-to-morse' ? 'INPUT MESSAGE' : 'MORSE CODE INPUT'}
+                {mode === 'text-to-morse' ? t.morse.inputMessage : t.morse.morseCodeInput}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -497,15 +502,15 @@ export default function MorseTranslator() {
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder={
                   mode === 'text-to-morse' 
-                    ? 'Enter your message here...' 
-                    : 'Enter Morse code (. - / for spaces)...'
+                    ? t.morse.inputPlaceholder
+                    : t.morse.morsePlaceholder
                 }
                 className="terminal-text min-h-[140px] crt-screen text-lg border-2 border-blue-400 focus:border-blue-300"
               />
               <div className="flex gap-3">
                 <Button onClick={clearAll} className="retro-button" size="sm">
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  CLEAR
+                  {t.morse.clear}
                 </Button>
                 {inputText && (
                   <Button
@@ -514,7 +519,7 @@ export default function MorseTranslator() {
                     size="sm"
                   >
                     <Copy className="h-4 w-4 mr-2" />
-                    COPY INPUT
+                    {t.morse.copyInput}
                   </Button>
                 )}
               </div>
@@ -526,14 +531,14 @@ export default function MorseTranslator() {
           <CardHeader className="pb-3">
             <CardTitle className="neon-text text-xl flex items-center gap-3 text-green-300">
               <Radio className="h-6 w-6" />
-              {mode === 'text-to-morse' ? 'MORSE CODE OUTPUT' : 'DECODED MESSAGE'}
+              {mode === 'text-to-morse' ? t.morse.morseCodeOutput : t.morse.decodedMessage}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Textarea
               value={outputText}
               readOnly
-              placeholder="Output will appear here..."
+              placeholder={t.morse.outputPlaceholder}
               className="terminal-text min-h-[140px] crt-screen text-lg border-2 border-green-400 bg-green-950/20"
             />
             <div className="flex gap-3">
@@ -544,7 +549,7 @@ export default function MorseTranslator() {
                   size="sm"
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  COPY OUTPUT
+                  {t.morse.copyOutput}
                 </Button>
               )}
             </div>
@@ -556,13 +561,13 @@ export default function MorseTranslator() {
           <CardHeader>
             <CardTitle className="neon-text text-lg flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
-              MORSE CODE REFERENCE
+              {t.morse.reference}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <h4 className="terminal-text text-sm font-medium">ALPHABET</h4>
+                <h4 className="terminal-text text-sm font-medium">{t.morse.alphabet}</h4>
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   {morseReference.slice(0, 13).map(([letter, morse]) => (
                     <div key={letter} className="flex justify-between items-center p-1 rounded bg-green-900 bg-opacity-20 border border-green-500 border-opacity-30">
@@ -582,7 +587,7 @@ export default function MorseTranslator() {
               </div>
               
               <div className="space-y-3">
-                <h4 className="terminal-text text-sm font-medium">NUMBERS</h4>
+                <h4 className="terminal-text text-sm font-medium">{t.morse.numbers}</h4>
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   {numberReference.map(([number, morse]) => (
                     <div key={number} className="flex justify-between items-center p-1 rounded bg-blue-900 bg-opacity-20 border border-blue-500 border-opacity-30">
@@ -595,12 +600,11 @@ export default function MorseTranslator() {
                 <Separator className="bg-green-500 opacity-30" />
 
                 <div className="space-y-2 text-xs terminal-text">
-                  <h4 className="font-medium">USAGE GUIDE</h4>
+                  <h4 className="font-medium">{t.morse.usageGuide}</h4>
                   <ul className="space-y-1 opacity-80">
-                    <li>• DOT (.) = SHORT SIGNAL</li>
-                    <li>• DASH (-) = LONG SIGNAL</li>
-                    <li>• SPACE = LETTER SEPARATION</li>
-                    <li>• "/" = WORD SEPARATION</li>
+                    {t.morse.usageItems.map((item, index) => (
+                      <li key={index}>• {item}</li>
+                    ))}
                   </ul>
                 </div>
               </div>

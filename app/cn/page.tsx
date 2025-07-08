@@ -2,10 +2,10 @@ import MorseTranslator from '@/components/morse-translator';
 import { Navigation } from '@/components/navigation';
 import { Toaster } from '@/components/ui/sonner';
 
-export default function Home() {
+export default function ChinesePage() {
   return (
     <>
-      <Navigation language="en" />
+      <Navigation language="cn" />
       <div className="retro-bg min-h-screen">
         <div className="floating-particles">
           {Array.from({ length: 20 }).map((_, i) => (
@@ -23,7 +23,7 @@ export default function Home() {
         
         <div className="relative z-10">
           <div className="py-16 px-6">
-            <MorseTranslator language="en" />
+            <MorseTranslator language="cn" />
           </div>
         </div>
       </div>
