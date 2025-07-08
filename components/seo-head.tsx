@@ -38,6 +38,14 @@ export function SEOHead({ page, language = 'en', additionalMeta = [] }: SEOHeadP
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       
+      {/* 图标配置 - 确保在Google搜索中正确显示 */}
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      <link rel="shortcut icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
+      <link rel="icon" type="image/x-icon" sizes="16x16" href="/favicon.ico" />
+      <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon.ico" />
+      
       {/* 规范化URL */}
       <link rel="canonical" href={`https://morsecodetranslator.codes${language === 'cn' ? '/cn' : ''}`} />
       

@@ -53,6 +53,14 @@ export const metadata: Metadata = {
     maximumScale: 5,
   },
   themeColor: '#22c55e',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16' },
+      { url: '/favicon.ico', sizes: '32x32' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico'
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
