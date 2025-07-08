@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { audioManager } from '@/lib/audio-manager';
 import { getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
@@ -30,15 +29,11 @@ const MorseVisualizer = ({
   morse, 
   isManualPlaying, 
   manualProgress, 
-  isAutoPlaying, 
-  autoProgress, 
   playedLength 
 }: { 
   morse: string; 
   isManualPlaying: boolean; 
   manualProgress: number;
-  isAutoPlaying: boolean;
-  autoProgress: number;
   playedLength: number;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,27 +51,16 @@ const MorseVisualizer = ({
         newBlinking.add(i);
       }
       setBlinkingDots(newBlinking);
-    } else if (isAutoPlaying) {
-      // 自动播放模式：显示当前播放位置
-      const totalChars = morse.length;
-      const newIndex = Math.floor(autoProgress * totalChars);
-      setCurrentIndex(newIndex);
-      
-      const newBlinking = new Set<number>();
-      for (let i = Math.max(0, newIndex - 3); i <= newIndex; i++) {
-        newBlinking.add(i);
-      }
-      setBlinkingDots(newBlinking);
     } else {
       // 非播放状态：保持已播放长度
       setCurrentIndex(playedLength);
       setBlinkingDots(new Set());
     }
-  }, [isManualPlaying, manualProgress, isAutoPlaying, autoProgress, playedLength, morse]);
+  }, [isManualPlaying, manualProgress, playedLength, morse]);
 
   const renderMorseChar = (char: string, index: number) => {
-    const isActive = (isManualPlaying || isAutoPlaying) && index <= currentIndex;
-    const isPlayed = (!isManualPlaying && !isAutoPlaying) && index < playedLength;
+    const isActive = isManualPlaying && index <= currentIndex;
+    const isPlayed = !isManualPlaying && index < playedLength;
     const isBlinking = blinkingDots.has(index);
     
     if (char === '.') {
@@ -109,15 +93,14 @@ const MorseVisualizer = ({
     <div className="morse-visualization crt-screen">
       <div className="flex items-center gap-2 flex-wrap justify-center min-h-[80px]">
         {morse.split('').map((char, index) => renderMorseChar(char, index))}
-        {(isManualPlaying || isAutoPlaying) && (
+        {isManualPlaying && (
           <div className="typing-cursor w-1 h-8 bg-green-400 ml-3" />
         )}
       </div>
       <div className="text-center mt-4 terminal-text text-sm opacity-70">
         {isManualPlaying && `Manual Transmission: ${Math.round(manualProgress * 100)}%`}
-        {isAutoPlaying && `Auto Transmission: ${Math.round(autoProgress * 100)}%`}
-        {!isManualPlaying && !isAutoPlaying && playedLength > 0 && `Transmitted: ${playedLength}/${morse.length} chars`}
-        {!isManualPlaying && !isAutoPlaying && playedLength === 0 && 'Ready for transmission'}
+        {!isManualPlaying && playedLength > 0 && `Transmitted: ${playedLength}/${morse.length} chars`}
+        {!isManualPlaying && playedLength === 0 && 'Ready for transmission'}
       </div>
     </div>
   );
@@ -158,12 +141,6 @@ export default function MorseTranslator() {
   const [manualProgress, setManualProgress] = useState(0);
   const [manualTransmitting, setManualTransmitting] = useState(false);
   
-  // 自动播放状态
-  const [autoPlay, setAutoPlay] = useState(true); // 默认打开
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const [autoProgress, setAutoProgress] = useState(0);
-  const [autoTransmitting, setAutoTransmitting] = useState(false);
-  const [lastMorse, setLastMorse] = useState('');
   const [playedLength, setPlayedLength] = useState(0); // 已播放的长度
   
   // 通用设置
@@ -194,28 +171,6 @@ export default function MorseTranslator() {
 
   const handleInputChange = (value: string) => {
     setInputText(value);
-    
-    if (autoPlay && value.trim() && mode === 'text-to-morse') {
-      const morse = textToMorse(value);
-      if (morse && morse.length > lastMorse.length && morse.startsWith(lastMorse)) {
-        // 只播放新增部分
-        const newPart = morse.slice(lastMorse.length);
-        if (newPart.trim() && !isAutoPlaying) {
-          // 使用延时避免频繁触发
-          setTimeout(() => {
-            if (!isAutoPlaying) {
-              playAutoMorse(newPart, lastMorse.length);
-            }
-          }, 200);
-        }
-      }
-      setLastMorse(morse);
-    } else if (!autoPlay) {
-      // 关闭自动播放时重置状态
-      setLastMorse('');
-      setPlayedLength(0);
-      setAutoProgress(0);
-    }
   };
 
   const toggleMode = () => {
@@ -224,39 +179,6 @@ export default function MorseTranslator() {
     
     setInputText(outputText);
     setOutputText(translate(outputText, newMode));
-  };
-
-  // 自动播放新增摩斯码
-  const playAutoMorse = async (newMorse: string, startOffset: number) => {
-    if (!newMorse || isAutoPlaying) return;
-    
-    const timings = getMorseTimings(newMorse);
-    if (timings.length === 0) return;
-    
-    setIsAutoPlaying(true);
-    setAutoTransmitting(true);
-    
-    // 使用非阻塞方式播放
-    audioManager.playMorseCode(
-      timings,
-      frequency[0],
-      speed[0],
-      (progress) => {
-        const currentLength = startOffset + progress * newMorse.length;
-        setAutoProgress(currentLength / (outputText.length || 1));
-      },
-      () => {
-        setIsAutoPlaying(false);
-        setAutoTransmitting(false);
-        setPlayedLength(startOffset + newMorse.length);
-        // 更新进度显示已播放完成
-        setAutoProgress((startOffset + newMorse.length) / (outputText.length || 1));
-      }
-    ).catch(() => {
-      // 播放出错时也要重置状态
-      setIsAutoPlaying(false);
-      setAutoTransmitting(false);
-    });
   };
 
   // 手动播放完整摩斯码
@@ -294,8 +216,6 @@ export default function MorseTranslator() {
     audioManager.stop();
     setIsManualPlaying(false);
     setManualTransmitting(false);
-    setIsAutoPlaying(false);
-    setAutoTransmitting(false);
   };
 
   const copyToClipboard = async (text: string) => {
@@ -314,9 +234,7 @@ export default function MorseTranslator() {
   const clearAll = () => {
     setInputText('');
     setOutputText('');
-    setLastMorse('');
     setPlayedLength(0);
-    setAutoProgress(0);
     setManualProgress(0);
     stopAllAudio();
   };
@@ -377,8 +295,6 @@ export default function MorseTranslator() {
                   morse={outputText} 
                   isManualPlaying={isManualPlaying}
                   manualProgress={manualProgress}
-                  isAutoPlaying={isAutoPlaying}
-                  autoProgress={autoProgress}
                   playedLength={playedLength}
                 />
               </div>
@@ -394,8 +310,7 @@ export default function MorseTranslator() {
                   <div className="space-y-2">
                     <LEDIndicator active={!!inputText} label="INPUT READY" />
                     <LEDIndicator active={!!outputText} label="OUTPUT READY" />
-                    <LEDIndicator active={isManualPlaying || isAutoPlaying} label="TRANSMITTING" />
-                    <LEDIndicator active={autoPlay} label="AUTO-TRANSMIT" />
+                    <LEDIndicator active={isManualPlaying} label="TRANSMITTING" />
                   </div>
                 </div>
 
@@ -442,21 +357,9 @@ export default function MorseTranslator() {
                     TRANSMISSION
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="auto-play"
-                        checked={autoPlay}
-                        onCheckedChange={setAutoPlay}
-                        className="data-[state=checked]:bg-green-600"
-                      />
-                      <Label htmlFor="auto-play" className="terminal-text text-xs">
-                        AUTO-TRANSMIT
-                      </Label>
-                    </div>
-                    
                     <Button
                       onClick={playManualMorse}
-                      disabled={isManualPlaying || isAutoPlaying}
+                      disabled={isManualPlaying}
                       className="retro-button bg-yellow-900 border-yellow-500 hover:bg-yellow-800 w-full"
                       size="sm"
                     >
@@ -473,7 +376,7 @@ export default function MorseTranslator() {
                       )}
                     </Button>
 
-                    {(isManualPlaying || isAutoPlaying) && (
+                    {isManualPlaying && (
                       <Button
                         onClick={stopAllAudio}
                         className="retro-button bg-red-900 border-red-500 hover:bg-red-800 w-full"
@@ -489,7 +392,7 @@ export default function MorseTranslator() {
                       <Label className="terminal-text text-xs block mb-1">
                         TELEGRAPH KEY
                       </Label>
-                      <TelegraphKey isPressed={isManualPlaying || isAutoPlaying} />
+                      <TelegraphKey isPressed={isManualPlaying} />
                     </div>
                   </div>
                 </div>
