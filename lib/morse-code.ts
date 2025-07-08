@@ -75,3 +75,49 @@ export function getMorseTimings(morse: string): Array<{ type: 'dot' | 'dash' | '
   
   return timings;
 }
+
+export function getMorseCharacterMapping(morse: string): Array<{ charIndex: number; timingIndices: number[] }> {
+  const mapping: Array<{ charIndex: number; timingIndices: number[] }> = [];
+  let timingIndex = 0;
+  
+  for (let charIndex = 0; charIndex < morse.length; charIndex++) {
+    const char = morse[charIndex];
+    const currentMapping = { charIndex, timingIndices: [] as number[] };
+    
+    if (char === '.') {
+      currentMapping.timingIndices.push(timingIndex++);
+      // Add pause timing if not at end and next char is not space
+      if (charIndex < morse.length - 1 && morse[charIndex + 1] !== ' ') {
+        currentMapping.timingIndices.push(timingIndex++);
+      }
+    } else if (char === '-') {
+      currentMapping.timingIndices.push(timingIndex++);
+      // Add pause timing if not at end and next char is not space
+      if (charIndex < morse.length - 1 && morse[charIndex + 1] !== ' ') {
+        currentMapping.timingIndices.push(timingIndex++);
+      }
+    } else if (char === ' ') {
+      currentMapping.timingIndices.push(timingIndex++);
+    }
+    
+    mapping.push(currentMapping);
+  }
+  
+  return mapping;
+}
+
+export function getCurrentPlayingCharIndex(
+  morse: string, 
+  currentTimingIndex: number
+): number {
+  const mapping = getMorseCharacterMapping(morse);
+  
+  for (let i = mapping.length - 1; i >= 0; i--) {
+    const { charIndex, timingIndices } = mapping[i];
+    if (timingIndices.some(idx => idx <= currentTimingIndex)) {
+      return charIndex;
+    }
+  }
+  
+  return -1;
+}

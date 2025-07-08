@@ -54,7 +54,8 @@ export class AudioManager {
     frequency: number = 600,
     speed: number = 1,
     onProgress?: (progress: number) => void,
-    onComplete?: () => void
+    onComplete?: () => void,
+    onCharacterProgress?: (timingIndex: number) => void
   ) {
     await this.ensureAudioContext();
     
@@ -73,11 +74,18 @@ export class AudioManager {
       }
       
       // Schedule progress callback with accurate timing
-      if (onProgress) {
+      if (onProgress || onCharacterProgress) {
         setTimeout(() => {
           if (this.isPlaying) { // Only update if still playing
-            const elapsed = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration / speed, 0);
-            onProgress(elapsed / totalDuration);
+            if (onProgress) {
+              const elapsed = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration / speed, 0);
+              const progress = elapsed / totalDuration;
+              onProgress(Math.min(progress, 1)); // Ensure progress doesn't exceed 1
+            }
+            
+            if (onCharacterProgress) {
+              onCharacterProgress(index);
+            }
           }
         }, accumulatedDelay);
       }

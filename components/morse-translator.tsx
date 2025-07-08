@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { audioManager } from '@/lib/audio-manager';
-import { getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
+import { getCurrentPlayingCharIndex, getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
 import {
   Activity,
   ArrowUpDown,
@@ -29,25 +29,25 @@ const MorseVisualizer = ({
   morse, 
   isManualPlaying, 
   manualProgress, 
-  playedLength 
+  playedLength,
+  currentPlayingCharIndex 
 }: { 
   morse: string; 
   isManualPlaying: boolean; 
   manualProgress: number;
   playedLength: number;
+  currentPlayingCharIndex: number;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [blinkingDots, setBlinkingDots] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (isManualPlaying) {
-      // 手动播放模式：显示整体进度
-      const totalChars = morse.length;
-      const newIndex = Math.floor(manualProgress * totalChars);
-      setCurrentIndex(newIndex);
+      // 播放模式：使用当前播放字符索引
+      setCurrentIndex(currentPlayingCharIndex);
       
       const newBlinking = new Set<number>();
-      for (let i = Math.max(0, newIndex - 3); i <= newIndex; i++) {
+      for (let i = Math.max(0, currentPlayingCharIndex - 2); i <= currentPlayingCharIndex; i++) {
         newBlinking.add(i);
       }
       setBlinkingDots(newBlinking);
@@ -56,10 +56,11 @@ const MorseVisualizer = ({
       setCurrentIndex(playedLength);
       setBlinkingDots(new Set());
     }
-  }, [isManualPlaying, manualProgress, playedLength, morse]);
+  }, [isManualPlaying, currentPlayingCharIndex, playedLength, morse]);
 
   const renderMorseChar = (char: string, index: number) => {
-    const isActive = isManualPlaying && index <= currentIndex;
+    const isActive = isManualPlaying && index <= currentPlayingCharIndex;
+    const isCurrentlyPlaying = isManualPlaying && index === currentPlayingCharIndex;
     const isPlayed = !isManualPlaying && index < playedLength;
     const isBlinking = blinkingDots.has(index);
     
@@ -67,21 +68,21 @@ const MorseVisualizer = ({
       return (
         <div
           key={index}
-          className={`morse-dot${isActive ? ' active' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
+          className={`morse-dot${isActive ? ' active' : ''}${isCurrentlyPlaying ? ' currently-playing' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
         />
       );
     } else if (char === '-') {
       return (
         <div
           key={index}
-          className={`morse-dash${isActive ? ' active' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
+          className={`morse-dash${isActive ? ' active' : ''}${isCurrentlyPlaying ? ' currently-playing' : ''}${isBlinking ? ' animate-pulse' : ''}${isPlayed ? ' played' : ''}`}
         />
       );
     } else if (char === ' ') {
       return <div key={index} className="w-4" />;
     } else if (char === '/') {
       return (
-        <div key={index} className="w-8 h-1 bg-yellow-400 opacity-60 rounded mx-2">
+        <div key={index} className={`w-8 h-1 bg-yellow-400 opacity-60 rounded mx-2${isCurrentlyPlaying ? ' currently-playing-space' : ''}`}>
           <div className="w-full h-full bg-gradient-to-r from-transparent via-yellow-300 to-transparent animate-pulse" />
         </div>
       );
@@ -140,6 +141,7 @@ export default function MorseTranslator() {
   const [isManualPlaying, setIsManualPlaying] = useState(false);
   const [manualProgress, setManualProgress] = useState(0);
   const [manualTransmitting, setManualTransmitting] = useState(false);
+  const [currentPlayingCharIndex, setCurrentPlayingCharIndex] = useState(-1);
   
   const [playedLength, setPlayedLength] = useState(0); // 已播放的长度
   
@@ -191,6 +193,7 @@ export default function MorseTranslator() {
     setIsManualPlaying(true);
     setManualTransmitting(true);
     setManualProgress(0);
+    setCurrentPlayingCharIndex(-1);
     
     // 使用非阻塞方式播放
     audioManager.playMorseCode(
@@ -203,11 +206,18 @@ export default function MorseTranslator() {
         setManualTransmitting(false);
         setManualProgress(1); // 显示完成状态
         setPlayedLength(outputText.length); // 标记全部播放完成
+        setCurrentPlayingCharIndex(-1);
+      },
+      (timingIndex) => {
+        // 更新当前播放字符索引
+        const charIndex = getCurrentPlayingCharIndex(outputText, timingIndex);
+        setCurrentPlayingCharIndex(charIndex);
       }
     ).catch(() => {
       // 播放出错时也要重置状态
       setIsManualPlaying(false);
       setManualTransmitting(false);
+      setCurrentPlayingCharIndex(-1);
     });
   };
 
@@ -216,6 +226,7 @@ export default function MorseTranslator() {
     audioManager.stop();
     setIsManualPlaying(false);
     setManualTransmitting(false);
+    setCurrentPlayingCharIndex(-1);
   };
 
   const copyToClipboard = async (text: string) => {
@@ -296,6 +307,7 @@ export default function MorseTranslator() {
                   isManualPlaying={isManualPlaying}
                   manualProgress={manualProgress}
                   playedLength={playedLength}
+                  currentPlayingCharIndex={currentPlayingCharIndex}
                 />
               </div>
               
