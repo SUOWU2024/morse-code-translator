@@ -1,6 +1,11 @@
 import { Footer } from '@/components/footer';
 import { Navigation } from '@/components/navigation';
+import { SEOJsonLd } from '@/components/seo';
+import { generateMetadata, pagesSEO } from '@/lib/seo';
 import { Database, Globe, Lock, Shield } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata(pagesSEO.privacy);
 
 export default function PrivacyPage() {
   return (
@@ -101,6 +106,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
+      <SEOJsonLd page="privacy" language="en" />
       <Footer />
     </>
   );

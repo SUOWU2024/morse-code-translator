@@ -1,0 +1,19 @@
+# Robots.txt for Morse Telegraph Station
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://morsecodetranslator.codes/sitemap.xml
+
+# Crawl delay to be respectful
+Crawl-delay: 1
+
+# Disallow temporary or development files
+Disallow: /api/
+Disallow: /_next/
+Disallow: /tmp/
+Disallow: /*.json$
+
+# Allow important files
+Allow: /manifest.json
+Allow: /favicon.ico

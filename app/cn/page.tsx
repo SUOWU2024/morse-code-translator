@@ -1,7 +1,12 @@
 import { Footer } from '@/components/footer';
 import MorseTranslator from '@/components/morse-translator';
 import { Navigation } from '@/components/navigation';
+import { SEOJsonLd } from '@/components/seo';
 import { Toaster } from '@/components/ui/sonner';
+import { generateMetadata, pagesSEO } from '@/lib/seo';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata(pagesSEO.home, 'cn');
 
 export default function ChinesePage() {
   return (
@@ -28,6 +33,7 @@ export default function ChinesePage() {
           </div>
         </div>
       </div>
+      <SEOJsonLd page="home" language="cn" />
       <Footer />
       <Toaster />
     </>

@@ -1,7 +1,12 @@
 import { Footer } from '@/components/footer';
 import { Navigation } from '@/components/navigation';
+import { SEOJsonLd } from '@/components/seo';
+import { generateMetadata, pagesSEO } from '@/lib/seo';
 import { translations } from '@/lib/translations';
 import { Heart, Radio, Zap } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata(pagesSEO.about, 'en');
 
 export default function AboutPage() {
   const t = translations.en;
@@ -119,6 +124,7 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+      <SEOJsonLd page="about" language="en" />
       <Footer />
     </>
   );

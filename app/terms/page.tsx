@@ -1,6 +1,11 @@
 import { Footer } from '@/components/footer';
 import { Navigation } from '@/components/navigation';
+import { SEOJsonLd } from '@/components/seo';
+import { generateMetadata, pagesSEO } from '@/lib/seo';
 import { AlertTriangle, Clock, FileText, Scale } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata(pagesSEO.terms);
 
 export default function TermsPage() {
   return (
@@ -115,6 +120,7 @@ export default function TermsPage() {
           </div>
         </div>
       </div>
+      <SEOJsonLd page="terms" language="en" />
       <Footer />
     </>
   );
