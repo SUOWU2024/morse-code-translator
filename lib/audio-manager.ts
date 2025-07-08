@@ -63,6 +63,7 @@ export class AudioManager {
     this.isPlaying = true;
     let currentTime = this.audioContext.currentTime;
     const totalDuration = timings.reduce((sum, timing) => sum + timing.duration / speed, 0);
+    let accumulatedDelay = 0;
     
     timings.forEach((timing, index) => {
       const duration = timing.duration / 1000 / speed; // Convert to seconds and apply speed
@@ -71,14 +72,17 @@ export class AudioManager {
         this.createBeep(frequency, duration, currentTime);
       }
       
-      // Schedule progress callback
+      // Schedule progress callback with accurate timing
       if (onProgress) {
         setTimeout(() => {
-          const elapsed = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration / speed, 0);
-          onProgress(elapsed / (totalDuration * 1000));
-        }, (currentTime - this.audioContext!.currentTime) * 1000);
+          if (this.isPlaying) { // Only update if still playing
+            const elapsed = timings.slice(0, index + 1).reduce((sum, t) => sum + t.duration / speed, 0);
+            onProgress(elapsed / totalDuration);
+          }
+        }, accumulatedDelay);
       }
       
+      accumulatedDelay += timing.duration / speed;
       currentTime += duration;
     });
     
@@ -86,7 +90,7 @@ export class AudioManager {
     setTimeout(() => {
       this.isPlaying = false;
       onComplete?.();
-    }, totalDuration * 1000);
+    }, totalDuration);
   }
   
   stop() {
