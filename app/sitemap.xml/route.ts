@@ -26,12 +26,6 @@ export async function GET() {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/cn/about</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>${baseUrl}/privacy</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>yearly</changefreq>
