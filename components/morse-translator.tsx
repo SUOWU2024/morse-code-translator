@@ -16,6 +16,7 @@ import {
   ArrowUpDown,
   BookOpen,
   Copy,
+  Download,
   Play,
   Radio,
   Repeat,
@@ -290,6 +291,112 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
     }
   };
 
+  // 生成并下载摩斯电码音频文件
+  const downloadMorseAudio = async () => {
+    if (!outputText) return;
+
+    try {
+      const timings = getMorseTimings(outputText);
+      if (timings.length === 0) return;
+
+      // Create audio context for recording
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const sampleRate = audioContext.sampleRate;
+      
+      // Calculate total duration in seconds
+      const totalDurationMs = timings.reduce((sum, timing) => sum + timing.duration, 0) / speed[0];
+      const totalDurationSeconds = totalDurationMs / 1000;
+      const bufferLength = Math.ceil(sampleRate * totalDurationSeconds);
+      
+      // Create audio buffer
+      const audioBuffer = audioContext.createBuffer(1, bufferLength, sampleRate);
+      const channelData = audioBuffer.getChannelData(0);
+      
+      let currentSample = 0;
+      
+      // Generate audio data for each timing
+      timings.forEach((timing) => {
+        const durationSamples = Math.ceil((timing.duration / speed[0] / 1000) * sampleRate);
+        
+        if (timing.type === 'dot' || timing.type === 'dash') {
+          // Generate sine wave for beeps
+          for (let i = 0; i < durationSamples && currentSample + i < bufferLength; i++) {
+            const t = i / sampleRate;
+            const fadeIn = Math.min(i / (sampleRate * 0.01), 1); // 10ms fade in
+            const fadeOut = Math.min((durationSamples - i) / (sampleRate * 0.01), 1); // 10ms fade out
+            const envelope = Math.min(fadeIn, fadeOut) * 0.15; // Volume
+            channelData[currentSample + i] = envelope * Math.sin(2 * Math.PI * frequency[0] * t);
+          }
+        }
+        // For pauses and spaces, leave silence (already initialized to 0)
+        
+        currentSample += durationSamples;
+      });
+      
+      // Convert to WAV format
+      const wavData = audioBufferToWav(audioBuffer);
+      const blob = new Blob([wavData], { type: 'audio/wav' });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `morse-code-${Date.now()}.wav`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success(language === 'en' ? 'Audio file downloaded successfully!' : '音频文件下载成功！', {
+        style: { background: '#001100', color: '#00ff41', border: '1px solid #00ff41' }
+      });
+    } catch (error) {
+      toast.error(language === 'en' ? 'Failed to generate audio file' : '音频文件生成失败', {
+        style: { background: '#110000', color: '#ff4141', border: '1px solid #ff4141' }
+      });
+    }
+  };
+
+  // Convert AudioBuffer to WAV format
+  const audioBufferToWav = (buffer: AudioBuffer): ArrayBuffer => {
+    const length = buffer.length;
+    const sampleRate = buffer.sampleRate;
+    const arrayBuffer = new ArrayBuffer(44 + length * 2);
+    const view = new DataView(arrayBuffer);
+    const channelData = buffer.getChannelData(0);
+
+    // WAV header
+    const writeString = (offset: number, string: string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + length * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, length * 2, true);
+
+    // Convert float32 to int16
+    let offset = 44;
+    for (let i = 0; i < length; i++) {
+      const sample = Math.max(-1, Math.min(1, channelData[i]));
+      view.setInt16(offset, sample * 0x7FFF, true);
+      offset += 2;
+    }
+
+    return arrayBuffer;
+  };
+
   const clearAll = () => {
     setInputText('');
     setOutputText('');
@@ -358,6 +465,27 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
                   currentPlayingCharIndex={currentPlayingCharIndex}
                   language={language}
                 />
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <Button
+                  onClick={() => copyToClipboard(outputText)}
+                  className="retro-button bg-blue-900 border-blue-500 hover:bg-blue-800"
+                  size="sm"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  {language === 'en' ? 'Copy Morse Code' : '复制摩斯码'}
+                </Button>
+                <Button
+                  onClick={downloadMorseAudio}
+                  className="retro-button bg-purple-900 border-purple-500 hover:bg-purple-800"
+                  size="sm"
+                  disabled={!outputText}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {language === 'en' ? 'Download Audio' : '下载音频'}
+                </Button>
               </div>
               
               {/* Integrated Controls */}
