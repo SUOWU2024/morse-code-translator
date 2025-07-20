@@ -291,7 +291,30 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
     }
   };
 
-  // 生成并下载摩斯电码音频文件
+  // 下载摩斯电码文本文件
+  const downloadMorseText = () => {
+    if (!outputText) return;
+
+    try {
+      const blob = new Blob([outputText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `morse-code-${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success(language === 'en' ? 'Text file downloaded successfully!' : '文本文件下载成功！', {
+        style: { background: '#001100', color: '#00ff41', border: '1px solid #00ff41' }
+      });
+    } catch (error) {
+      toast.error(language === 'en' ? 'Failed to download text file' : '文本文件下载失败', {
+        style: { background: '#110000', color: '#ff4141', border: '1px solid #ff4141' }
+      });
+    }
+  };
   const downloadMorseAudio = async () => {
     if (!outputText) return;
 
@@ -468,7 +491,7 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
               </div>
               
               {/* Action Buttons */}
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-3 justify-center flex-wrap">
                 <Button
                   onClick={() => copyToClipboard(outputText)}
                   className="retro-button bg-blue-900 border-blue-500 hover:bg-blue-800"
@@ -476,6 +499,15 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
                 >
                   <Copy className="h-4 w-4 mr-2" />
                   {language === 'en' ? 'Copy Morse Code' : '复制摩斯码'}
+                </Button>
+                <Button
+                  onClick={downloadMorseText}
+                  className="retro-button bg-green-900 border-green-500 hover:bg-green-800"
+                  size="sm"
+                  disabled={!outputText}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {language === 'en' ? 'Download Text' : '下载文本'}
                 </Button>
                 <Button
                   onClick={downloadMorseAudio}
