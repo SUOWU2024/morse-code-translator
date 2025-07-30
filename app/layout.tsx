@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://morsecodetranslator.codes'),
   title: {
     default: 'Morse Code Translator - Free Online Text to Morse Converter',
-    template: '%s | Morse Code Translator'
+    template: '%s | morsecodetranslator.codes'
   },
   description: 'Professional morse code translator with instant text conversion and real-time audio feedback. Free online morse code translator for amateur radio, emergency communications, and learning.',
   keywords: [
