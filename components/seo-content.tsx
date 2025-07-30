@@ -1,8 +1,8 @@
 import { use } from 'react';
-import { loadSEOContent } from '../lib/content-loader';
+import { loadSEOContent } from '@/lib/content-loader';
 
 interface SEOContentProps {
-  language: 'en' | 'cn';
+  language: 'en' | 'cn' | 'ja';
 }
 
 function MarkdownRenderer({ content }: { content: string }) {

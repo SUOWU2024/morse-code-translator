@@ -22,6 +22,10 @@ export const multiLanguageSEO = {
   cn: {
     siteName: '摩斯密码翻译器',
     description: '专业的在线摩斯码翻译器，具有实时音频反馈和可视化表示。将文本转换为摩斯码，体验真实的电报通信。免费的摩斯码转换器。',
+  },
+  ja: {
+    siteName: 'モールス信号変換ツール',
+    description: '無料のモールス信号変換ツールでテキストを瞬時にモールス信号に変換・翻訳。SOS信号解読、モールス信号一覧、覚え方ガイド付き。多言語対応のオンラインモールス信号学習サイト。',
   }
 };
 
@@ -36,7 +40,8 @@ export const pagesSEO = {
         canonical: 'https://morsecodetranslator.codes/',
         languages: {
           'en': 'https://morsecodetranslator.codes/',
-          'zh-CN': 'https://morsecodetranslator.codes/cn'
+          'zh-CN': 'https://morsecodetranslator.codes/cn',
+          'ja': 'https://morsecodetranslator.codes/ja'
         }
       }
     },
@@ -48,7 +53,21 @@ export const pagesSEO = {
         canonical: 'https://morsecodetranslator.codes/cn',
         languages: {
           'en': 'https://morsecodetranslator.codes/',
-          'zh-CN': 'https://morsecodetranslator.codes/cn'
+          'zh-CN': 'https://morsecodetranslator.codes/cn',
+          'ja': 'https://morsecodetranslator.codes/ja'
+        }
+      }
+    },
+    ja: {
+      title: 'モールス信号変換ツール | 無料オンラインモールス信号翻訳・解読サイト',
+      description: '無料のモールス信号変換ツールでテキストを瞬時にモールス信号に変換・翻訳。SOS信号解読、モールス信号一覧、覚え方ガイド付き。多言語対応のオンラインモールス信号学習サイト。',
+      canonical: '/ja',
+      alternates: {
+        canonical: 'https://morsecodetranslator.codes/ja',
+        languages: {
+          'en': 'https://morsecodetranslator.codes/',
+          'zh-CN': 'https://morsecodetranslator.codes/cn',
+          'ja': 'https://morsecodetranslator.codes/ja'
         }
       }
     }
@@ -101,7 +120,9 @@ export const pagesSEO = {
 
 // 生成结构化数据的函数
 export function generateStructuredData(page: string, language: 'en' | 'cn' | 'ja') {
-  const config = language === 'cn' ? multiLanguageSEO.cn : multiLanguageSEO.en;
+  const config = language === 'cn' ? multiLanguageSEO.cn : 
+                 language === 'ja' ? multiLanguageSEO.ja : 
+                 multiLanguageSEO.en;
   
   const baseStructuredData = {
     "@context": "https://schema.org",
@@ -193,9 +214,11 @@ export function generateStructuredData(page: string, language: 'en' | 'cn' | 'ja
 // 生成元数据的通用函数
 export function generateMetadata(
   pageConfig: any,
-  language: 'en' | 'cn' = 'en'
+  language: 'en' | 'cn' | 'ja' = 'en'
 ): Metadata {
-  const config = language === 'cn' ? multiLanguageSEO.cn : multiLanguageSEO.en;
+  const config = language === 'cn' ? multiLanguageSEO.cn : 
+                 language === 'ja' ? multiLanguageSEO.ja : 
+                 multiLanguageSEO.en;
   const currentPageConfig = pageConfig[language] || pageConfig;
   
   return {

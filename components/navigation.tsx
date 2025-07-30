@@ -112,6 +112,14 @@ export function Navigation({ language = 'en' }: NavigationProps) {
                     {t.nav.chinese}
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link 
+                    href={getLanguageLink('ja')}
+                    className={`terminal-text cursor-pointer hover:bg-green-900/20 w-full ${language === 'ja' ? 'bg-green-900/30' : ''}`}
+                  >
+                    {t.nav.japanese}
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -156,6 +164,12 @@ export function Navigation({ language = 'en' }: NavigationProps) {
                     className={`inline-block px-3 py-1 terminal-text text-xs rounded border transition-colors ${language === 'cn' ? 'bg-green-900/30 border-green-500' : 'border-green-500/30 hover:bg-green-900/20'}`}
                   >
                     {t.nav.chinese}
+                  </Link>
+                  <Link
+                    href={getLanguageLink('ja')}
+                    className={`inline-block px-3 py-1 terminal-text text-xs rounded border transition-colors ${language === 'ja' ? 'bg-green-900/30 border-green-500' : 'border-green-500/30 hover:bg-green-900/20'}`}
+                  >
+                    {t.nav.japanese}
                   </Link>
                 </div>
               </div>

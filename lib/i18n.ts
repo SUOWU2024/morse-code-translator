@@ -2,7 +2,7 @@
 import { translations, Language } from './translations';
 
 // 支持的语言列表
-export const supportedLanguages: Language[] = ['en', 'cn'];
+export const supportedLanguages: Language[] = ['en', 'cn', 'ja'];
 
 // 默认语言
 export const defaultLanguage: Language = 'en';
@@ -10,7 +10,8 @@ export const defaultLanguage: Language = 'en';
 // 语言显示名称映射
 export const languageNames = {
   en: 'English',
-  cn: '中文'
+  cn: '中文',
+  ja: '日本語'
 } as const;
 
 // 获取翻译函数
@@ -38,7 +39,7 @@ export function parseLanguageFromPath(path: string): Language {
 // 生成语言切换URL
 export function generateLanguageUrl(targetLanguage: Language, currentPath: string = '/'): string {
   // 移除当前路径中的语言前缀
-  const pathWithoutLang = currentPath.replace(/^\/(en|cn)/, '') || '/';
+  const pathWithoutLang = currentPath.replace(/^\/(en|cn|ja)/, '') || '/';
   
   // 如果是默认语言(英文)，不添加前缀
   if (targetLanguage === defaultLanguage) {
@@ -59,11 +60,17 @@ export function getBrowserLanguage(): Language {
   if (browserLang === 'zh-cn' || browserLang === 'zh') {
     return 'cn';
   }
+  if (browserLang === 'ja' || browserLang === 'ja-jp') {
+    return 'ja';
+  }
   
   // 检查语言代码前缀
   const langPrefix = browserLang.split('-')[0];
   if (langPrefix === 'zh') {
     return 'cn';
+  }
+  if (langPrefix === 'ja') {
+    return 'ja';
   }
   
   return defaultLanguage;

@@ -10,6 +10,7 @@ interface NavigationTranslations {
   language: string;
   english: string;
   chinese: string;
+  japanese: string;
   comingSoon: string;
 }
 
@@ -93,6 +94,7 @@ export const translations: Record<string, TranslationSet> = {
       language: "Language",
       english: "English",
       chinese: "中文",
+      japanese: "日本語",
       comingSoon: "Coming Soon..."
     },
     
@@ -200,6 +202,7 @@ export const translations: Record<string, TranslationSet> = {
       language: "语言",
       english: "English",
       chinese: "中文",
+      japanese: "日本語",
       comingSoon: "敬请期待..."
     },
     
@@ -294,6 +297,113 @@ export const translations: Record<string, TranslationSet> = {
       ],
       history: "摩斯码历史",
       historyText: "摩斯码由塞缪尔·摩斯和阿尔弗雷德·维尔在1830年代开发。它革命性地改变了长距离通信，并在一个多世纪内一直是电报通信的主要方法。如今，它仍在航空、海事和业余无线电通信中使用。"
+    }
+  },
+  
+  ja: {
+    // Navigation
+    nav: {
+      title: "モールス電信局",
+      tools: "ツール",
+      articles: "記事",
+      about: "概要",
+      language: "言語",
+      english: "English",
+      chinese: "中文",
+      japanese: "日本語",
+      comingSoon: "近日公開..."
+    },
+    
+    // Morse Translator
+    morse: {
+      title: "モールス電信局",
+      switchMode: "モード切替",
+      textToMorse: "テキスト → モールス",
+      morseToText: "モールス → テキスト",
+      
+      // Visual Transmission
+      visualTransmission: "視覚的送信",
+      visualDescription: "リアルタイムモールス符号の可視化と信号パターン",
+      
+      // Station Status
+      stationStatus: "局の状態",
+      inputReady: "入力準備完了",
+      outputReady: "出力準備完了",
+      transmitting: "送信中",
+      repeatMode: "リピートモード",
+      
+      // Controls
+      controls: "制御",
+      frequency: "周波数",
+      speed: "速度",
+      
+      // Transmission
+      transmission: "送信",
+      transmit: "送信開始",
+      stop: "停止",
+      telegraphKey: "電信キー",
+      
+      // Input/Output
+      inputMessage: "入力メッセージ",
+      morseCodeInput: "モールス符号入力",
+      inputPlaceholder: "メッセージをここに入力してください...",
+      morsePlaceholder: "モールス符号を入力 (. - / はスペース用)...",
+      morseCodeOutput: "モールス符号出力",
+      decodedMessage: "復号化メッセージ",
+      outputPlaceholder: "出力がここに表示されます...",
+      
+      // Buttons
+      clear: "クリア",
+      copyInput: "入力をコピー",
+      copyOutput: "出力をコピー",
+      
+      // Reference
+      reference: "モールス符号参照表",
+      alphabet: "アルファベット",
+      numbers: "数字",
+      usageGuide: "使用ガイド",
+      usageItems: [
+        "ドット (.) = 短信号",
+        "ダッシュ (-) = 長信号",
+        "スペース = 文字区切り",
+        "/ = 単語区切り"
+      ],
+      
+      // Status Messages
+      manualTransmission: "手動送信:",
+      transmitted: "送信済み:",
+      readyForTransmission: "送信準備完了",
+      invalidMorseCode: "無効なモールス符号形式",
+      conversionError: "変換エラー",
+      
+      // Toast Messages
+      copiedToClipboard: "クリップボードにコピーしました！",
+      failedToCopy: "コピーに失敗しました",
+      downloadTextSuccess: "テキストファイルのダウンロードに成功しました！",
+      downloadTextFailed: "テキストファイルのダウンロードに失敗しました",
+      downloadAudioSuccess: "音声ファイルのダウンロードに成功しました！",
+      downloadAudioFailed: "音声ファイルの生成に失敗しました",
+      copyMorseCode: "モールス符号をコピー",
+      downloadText: "テキストをダウンロード",
+      downloadAudio: "音声をダウンロード"
+    },
+    
+    // About Page (Japanese)
+    about: {
+      title: "モールス電信局について",
+      subtitle: "伝統的な通信と現代技術を結ぶ橋",
+      mission: "私たちの使命",
+      missionText: "革新的なデジタルツールを通じてモールス符号通信の技術を保護し、現代化することで、誰もがモールス符号を学習し使用できるようにすることです。",
+      features: "主な機能",
+      featuresList: [
+        "カスタマイズ可能な周波数と速度によるリアルタイム音声フィードバック",
+        "本格的な電信美学による視覚的送信表示",
+        "包括的なモールス符号参照と学習ツール",
+        "継続的練習のためのリピートモード",
+        "グローバルアクセシビリティのための多言語サポート"
+      ],
+      history: "モールス符号の歴史",
+      historyText: "モールス符号は1830年代にサミュエル・モールスとアルフレッド・ヴェイルによって開発されました。長距離通信に革命をもたらし、1世紀以上にわたって電信通信の主要な方法でした。今日でも航空、海事、アマチュア無線通信で使用されています。"
     }
   },
 };

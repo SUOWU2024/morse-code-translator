@@ -9,7 +9,8 @@ export function useLanguage(): {
   const pathname = usePathname();
   
   // 从路径中提取语言
-  const language: Language = pathname.startsWith('/cn') ? 'cn' : 'en';
+  const language: Language = pathname.startsWith('/cn') ? 'cn' : 
+                           pathname.startsWith('/ja') ? 'ja' : 'en';
   const isDefaultLanguage = language === 'en';
   
   return {
