@@ -78,11 +78,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-jetbrains), 'JetBrains Mono', 'Courier New', monospace;
   }
 }
 
 /* Morse Code Retro Styling */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 .retro-bg {
   background: 
@@ -148,26 +148,26 @@
 }
 
 .terminal-text {
-  font-family: 'JetBrains Mono', monospace;
-  color: #00ff41;
-  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-  background: transparent;
-  border: none;
-  outline: none;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', 'Courier New', monospace !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5) !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
 }
 
 .terminal-text::placeholder {
-  color: rgba(0, 255, 65, 0.5);
+  color: rgba(0, 255, 65, 0.5) !important;
 }
 
 .neon-text {
-  font-family: 'Orbitron', monospace;
-  color: #00ff41;
+  font-family: var(--font-orbitron), 'Orbitron', 'Arial', sans-serif !important;
+  color: #00ff41 !important;
   text-shadow: 
     0 0 5px rgba(0, 255, 65, 0.8),
     0 0 10px rgba(0, 255, 65, 0.6),
     0 0 15px rgba(0, 255, 65, 0.4),
-    0 0 20px rgba(0, 255, 65, 0.2);
+    0 0 20px rgba(0, 255, 65, 0.2) !important;
   animation: neon-flicker 2s infinite alternate;
 }
 
@@ -224,17 +224,17 @@
 }
 
 .retro-button {
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  border: 2px solid #00ff41;
-  color: #00ff41;
-  font-family: 'Orbitron', monospace;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a) !important;
+  border: 2px solid #00ff41 !important;
+  color: #00ff41 !important;
+  font-family: var(--font-orbitron), 'Orbitron', 'Arial', sans-serif !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
   box-shadow: 
     0 0 10px rgba(0, 255, 65, 0.3),
-    inset 0 0 10px rgba(0, 255, 65, 0.1);
-  transition: all 0.3s ease;
+    inset 0 0 10px rgba(0, 255, 65, 0.1) !important;
+  transition: all 0.3s ease !important;
 }
 
 .retro-button:hover {
@@ -337,8 +337,8 @@
 
 .glitch-text {
   position: relative;
-  color: #00ff41;
-  font-family: 'Orbitron', monospace;
+  color: #00ff41 !important;
+  font-family: var(--font-orbitron), 'Orbitron', 'Arial', sans-serif !important;
 }
 
 .glitch-text::before,

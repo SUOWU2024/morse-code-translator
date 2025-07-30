@@ -87,7 +87,7 @@ export default function TermsPage() {
               <div className="p-8">
                 <h2 className="neon-text text-2xl font-bold mb-6">Service Availability</h2>
                 <p className="terminal-text text-gray-300 leading-relaxed">
-                  The service is provided "as is" without warranties of any kind. We do not guarantee 
+                  The service is provided &quot;as is&quot; without warranties of any kind. We do not guarantee 
                   continuous availability and may modify or discontinue the service at any time.
                 </p>
               </div>

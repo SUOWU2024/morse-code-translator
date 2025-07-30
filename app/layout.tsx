@@ -4,12 +4,16 @@ import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({ 
   subsets: ['latin'],
-  variable: '--font-jetbrains'
+  variable: '--font-jetbrains',
+  display: 'swap',
+  preload: true
 });
 
 const orbitron = Orbitron({ 
   subsets: ['latin'],
-  variable: '--font-orbitron'
+  variable: '--font-orbitron',
+  display: 'swap',
+  preload: true
 });
 
 export const metadata: Metadata = {
@@ -111,8 +115,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${jetbrainsMono.variable} ${orbitron.variable} font-mono`}>
+    <html lang="en" className={`${jetbrainsMono.variable} ${orbitron.variable}`}>
+      <body className="font-mono">
         <main>
           {children}
         </main>

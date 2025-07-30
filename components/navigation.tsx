@@ -7,7 +7,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Language, translations } from '@/lib/translations';
+import { useTranslation } from '@/lib/i18n';
+import { Language } from '@/lib/translations';
 import {
     BookOpen,
     ChevronDown,
@@ -27,12 +28,11 @@ interface NavigationProps {
 
 export function Navigation({ language = 'en' }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const t = translations[language];
+  const { t, switchLanguage } = useTranslation(language);
   
-  // 构建语言切换链接
+  // 构建语言切换链接 - 使用新的i18n系统
   const getLanguageLink = (targetLang: Language) => {
-    if (targetLang === 'en') return '/';
-    return `/${targetLang}`;
+    return switchLanguage(targetLang, typeof window !== 'undefined' ? window.location.pathname : '/');
   };
 
   return (
@@ -65,7 +65,7 @@ export function Navigation({ language = 'en' }: NavigationProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-black/90 border-green-500/30 backdrop-blur-sm">
                 <div className="p-3 text-center terminal-text text-sm opacity-60">
-                  {language === 'en' ? 'Coming Soon...' : '敬请期待...'}
+                  {t.nav.comingSoon}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -81,7 +81,7 @@ export function Navigation({ language = 'en' }: NavigationProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-black/90 border-green-500/30 backdrop-blur-sm">
                 <div className="p-3 text-center terminal-text text-sm opacity-60">
-                  {language === 'en' ? 'Coming Soon...' : '敬请期待...'}
+                  {t.nav.comingSoon}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -135,10 +135,10 @@ export function Navigation({ language = 'en' }: NavigationProps) {
                 HOME
               </Link>
               <div className="px-3 py-2 terminal-text opacity-60">
-                {t.nav.tools} ({language === 'en' ? 'Coming Soon...' : '敬请期待...'})
+                {t.nav.tools} ({t.nav.comingSoon})
               </div>
               <div className="px-3 py-2 terminal-text opacity-60">
-                {t.nav.articles} ({language === 'en' ? 'Coming Soon...' : '敬请期待...'})
+                {t.nav.articles} ({t.nav.comingSoon})
               </div>
               
               {/* Mobile Language Switcher */}

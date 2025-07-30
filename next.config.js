@@ -12,10 +12,10 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
-  generateEtags: false, // 静态导出不支持ETag
+  generateEtags: false,
   optimizeFonts: true,
   swcMinify: true,
-  trailingSlash: true, // 为静态导出添加尾随斜杠
+  trailingSlash: true
 };
 
 module.exports = nextConfig;

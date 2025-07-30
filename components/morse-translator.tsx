@@ -9,8 +9,9 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { audioManager } from '@/lib/audio-manager';
+import { useTranslation } from '@/lib/i18n';
 import { getCurrentPlayingCharIndex, getMorseTimings, isValidMorseCode, morseToText, textToMorse } from '@/lib/morse-code';
-import { Language, translations } from '@/lib/translations';
+import { Language } from '@/lib/translations';
 import {
   Activity,
   ArrowUpDown,
@@ -44,6 +45,7 @@ const MorseVisualizer = ({
   currentPlayingCharIndex: number;
   language?: Language;
 }) => {
+  const { t } = useTranslation(language);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [blinkingDots, setBlinkingDots] = useState<Set<number>>(new Set());
 
@@ -105,9 +107,9 @@ const MorseVisualizer = ({
         )}
       </div>
       <div className="text-center mt-4 terminal-text text-sm opacity-70">
-        {isManualPlaying && `${language === 'en' ? 'Manual Transmission:' : '手动传输:'} ${Math.round(manualProgress * 100)}%`}
-        {!isManualPlaying && playedLength > 0 && `${language === 'en' ? 'Transmitted:' : '已传输:'} ${playedLength}/${morse.length} chars`}
-        {!isManualPlaying && playedLength === 0 && (language === 'en' ? 'Ready for transmission' : '准备传输')}
+        {isManualPlaying && `${t.morse.manualTransmission} ${Math.round(manualProgress * 100)}%`}
+        {!isManualPlaying && playedLength > 0 && `${t.morse.transmitted} ${playedLength}/${morse.length} chars`}
+        {!isManualPlaying && playedLength === 0 && t.morse.readyForTransmission}
       </div>
     </div>
   );
@@ -139,7 +141,7 @@ const TelegraphKey = ({ isPressed }: { isPressed: boolean }) => (
 );
 
 export default function MorseTranslator({ language = 'en' }: { language?: Language }) {
-  const t = translations[language];
+  const { t } = useTranslation(language);
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [mode, setMode] = useState<'text-to-morse' | 'morse-to-text'>('text-to-morse');
@@ -185,7 +187,7 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
     } catch (error) {
       return t.morse.conversionError;
     }
-  }, []);
+  }, [t.morse.conversionError, t.morse.invalidMorseCode]);
 
   useEffect(() => {
     const translated = translate(inputText, mode);
@@ -306,11 +308,11 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      toast.success(language === 'en' ? 'Text file downloaded successfully!' : '文本文件下载成功！', {
+      toast.success(t.morse.downloadTextSuccess, {
         style: { background: '#001100', color: '#00ff41', border: '1px solid #00ff41' }
       });
     } catch (error) {
-      toast.error(language === 'en' ? 'Failed to download text file' : '文本文件下载失败', {
+      toast.error(t.morse.downloadTextFailed, {
         style: { background: '#110000', color: '#ff4141', border: '1px solid #ff4141' }
       });
     }
@@ -370,11 +372,11 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      toast.success(language === 'en' ? 'Audio file downloaded successfully!' : '音频文件下载成功！', {
+      toast.success(t.morse.downloadAudioSuccess, {
         style: { background: '#001100', color: '#00ff41', border: '1px solid #00ff41' }
       });
     } catch (error) {
-      toast.error(language === 'en' ? 'Failed to generate audio file' : '音频文件生成失败', {
+      toast.error(t.morse.downloadAudioFailed, {
         style: { background: '#110000', color: '#ff4141', border: '1px solid #ff4141' }
       });
     }
@@ -498,7 +500,7 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
                   size="sm"
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  {language === 'en' ? 'Copy Morse Code' : '复制摩斯码'}
+                  {t.morse.copyMorseCode}
                 </Button>
                 <Button
                   onClick={downloadMorseText}
@@ -507,7 +509,7 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
                   disabled={!outputText}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {language === 'en' ? 'Download Text' : '下载文本'}
+                  {t.morse.downloadText}
                 </Button>
                 <Button
                   onClick={downloadMorseAudio}
@@ -516,7 +518,7 @@ export default function MorseTranslator({ language = 'en' }: { language?: Langua
                   disabled={!outputText}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {language === 'en' ? 'Download Audio' : '下载音频'}
+                  {t.morse.downloadAudio}
                 </Button>
               </div>
               
