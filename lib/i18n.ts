@@ -41,13 +41,22 @@ export function generateLanguageUrl(targetLanguage: Language, currentPath: strin
   // 移除当前路径中的语言前缀
   const pathWithoutLang = currentPath.replace(/^\/(en|cn|ja)/, '') || '/';
   
+  // 检查是否为子页面（about, terms, privacy等）
+  const isSubPage = pathWithoutLang !== '/' && pathWithoutLang !== '';
+  
+  // 如果是子页面，只支持英文版本，其他语言回到首页
+  if (isSubPage && targetLanguage !== defaultLanguage) {
+    // 其他语言的子页面重定向到该语言的首页
+    return `/${targetLanguage}`;
+  }
+  
   // 如果是默认语言(英文)，不添加前缀
   if (targetLanguage === defaultLanguage) {
     return pathWithoutLang;
   }
   
-  // 其他语言添加语言前缀
-  return `/${targetLanguage}${pathWithoutLang}`;
+  // 其他语言添加语言前缀（仅首页）
+  return `/${targetLanguage}`;
 }
 
 // 获取浏览器首选语言
