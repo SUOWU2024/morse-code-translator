@@ -422,6 +422,7 @@ export function createLanguageTemplate(languageCode: string): TranslationSet {
       language: "[TRANSLATE] Language",
       english: "English",
       chinese: "中文",
+      japanese: "日本語",
       comingSoon: "[TRANSLATE] Coming Soon..."
     },
     morse: {
