@@ -35,7 +35,7 @@ export default function Home() {
           <SEOContent language="en" />
         </div>
       </div>
-      <SEOJsonLd page="home" language="en" includeFAQ={true} />
+      <SEOJsonLd page="home" language="en" />
       <Footer />
       <Toaster />
     </>

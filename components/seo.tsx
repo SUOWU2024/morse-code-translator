@@ -1,16 +1,15 @@
 'use client';
 
-import { generateFAQStructuredData, generateStructuredData } from '@/lib/seo';
+import { generateStructuredData } from '@/lib/seo';
 
 interface SEOJsonLdProps {
   page: string;
-  language?: 'en' | 'cn';
+  language?: 'en' | 'cn' | 'ja';
   includeFAQ?: boolean;
 }
 
-export function SEOJsonLd({ page, language = 'en', includeFAQ = false }: SEOJsonLdProps) {
+export function SEOJsonLd({ page, language = 'en' }: SEOJsonLdProps) {
   const structuredData = generateStructuredData(page, language);
-  const faqData = includeFAQ ? generateFAQStructuredData(language) : null;
 
   return (
     <>
@@ -20,14 +19,7 @@ export function SEOJsonLd({ page, language = 'en', includeFAQ = false }: SEOJson
           __html: JSON.stringify(structuredData, null, 2),
         }}
       />
-      {faqData && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqData, null, 2),
-          }}
-        />
-      )}
     </>
   );
 }
+

@@ -35,7 +35,7 @@ export default function ChinesePage() {
           <SEOContent language="cn" />
         </div>
       </div>
-      <SEOJsonLd page="home" language="cn" includeFAQ={true} />
+      <SEOJsonLd page="home" language="cn" />
       <Footer />
       <Toaster />
     </>
